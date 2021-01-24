@@ -20,15 +20,8 @@ public class Server {
         while(true){
             Socket socket = serverSocket.accept();
             HttpRequest hr = new HttpRequest(socket);
-            Map<String, String> headers = hr.getHeaders();
-
-//            for (Map.Entry<String, String> header : headers.entrySet()) {
-//                System.out.println("key=" + header.getKey() + ", value=" + header.getValue() +".");
-//            }
 
             System.out.println(hr.getRequestContent());
-//            System.out.println(hr.getOutlineMessage());
-//            System.out.println(hr.getHttpRequestBodyString());
 
             OutputStream outputStream = socket.getOutputStream();
             String sendMessage = "HTTP/1.1 200 OK\r\nContent-Type: text/html; charset=UTF-8\r\n\r\nhello Client!";

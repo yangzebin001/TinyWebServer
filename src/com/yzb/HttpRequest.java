@@ -93,9 +93,9 @@ public class HttpRequest extends Request {
             return requestContent.split(SEPARATOR_LINE)[0];
         }
         static String getHttpRequestBodyString(){
-            String[] RequestStrings = requestContent.split(SEPARATOR_LINE);
-            if(RequestStrings.length < 2) return "";
-            return RequestStrings[1];
+            String[] requestStrings = requestContent.split(SEPARATOR_LINE);
+            if(requestStrings.length < 2) return "";
+            return requestStrings[1];
         }
     }
 

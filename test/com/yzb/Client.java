@@ -37,7 +37,8 @@ public class Client {
         Map<String,Object> formData = new HashMap<>();
         formData.put("username","zhangsan");
         formData.put("password","password");
-        String body = HttpRequest.post("127.0.0.1:9090").header(Header.USER_AGENT, "yzb's client")
+        String body = HttpRequest.post("127.0.0.1:9090")
+                .header(Header.USER_AGENT, "yzb's client")
                 .form(formData)//表单内容
                 .timeout(20000)//超时，毫秒
                 .execute().body();
@@ -70,5 +71,33 @@ public class Client {
         socket.close();
     }
 
+    @Test
+    public void RequestPostBySocket() throws IOException {
+        InetSocketAddress serverAddress = new InetSocketAddress("127.0.0.1", 9090);
+        Socket socket = new Socket();
+        socket.connect(serverAddress);
+        OutputStream outputStream = socket.getOutputStream();
+        String sendMessage = "POST / HTTP/1.1\r\n"
+                + "User-Agent: yzb's client\r\n"
+                + "Content-Length: 26\r\n"
+                + "\r\n"
+                + "username=lisi&password=123\r\n";
+        outputStream.write(sendMessage.getBytes(StandardCharsets.UTF_8));
 
+        InputStream inputStream = socket.getInputStream();
+        int bufferSize = 1024;
+        byte[] buffer = new byte[1024];
+        ByteArrayOutputStream baso = new ByteArrayOutputStream();
+        while(true){
+            int len = inputStream.read(buffer);
+            if(len == -1) break;
+            baso.write(buffer, 0 , len);
+            if(len != bufferSize){
+                break;
+            }
+        }
+        System.out.println(baso.toString());
+        baso.close();
+        socket.close();
+    }
 }
