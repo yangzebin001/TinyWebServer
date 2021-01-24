@@ -1,5 +1,6 @@
 package com.yzb;
 
+import cn.hutool.core.util.StrUtil;
 import com.yzb.Exception.ParseHttpRequestException;
 
 import java.io.ByteArrayOutputStream;
@@ -43,6 +44,41 @@ public class HttpRequest extends Request {
 
     public String getOutlineMessage(){
         return outlineMessage;
+    }
+
+    @Override
+    public String getMethod(){
+        return StrUtil.subBefore(outlineMessage, " ", false);
+    }
+
+    @Override
+    public String getProtocol() {
+        return outlineMessage.substring(outlineMessage.lastIndexOf(' ')+1);
+    }
+
+    @Override
+    public String getScheme() {
+        return StrUtil.subBefore(getProtocol(), "/", false).toLowerCase();
+    }
+
+
+    private String getWholeRequestURL(){
+        return StrUtil.subBetween(outlineMessage, " ", " ");
+    }
+
+    @Override
+    public String getQueryString() {
+        return StrUtil.subAfter(getWholeRequestURL(), "?", false);
+    }
+
+    @Override
+    public String getRequestURI() {
+        return  StrUtil.subBefore(getWholeRequestURL(), "?", false);
+    }
+
+    @Override
+    public StringBuffer getRequestURL() {
+        return null;
     }
 
 

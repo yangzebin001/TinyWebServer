@@ -28,6 +28,7 @@ public class Client {
         String body = HttpRequest.get("127.0.0.1:9090")
                 .header(Header.USER_AGENT, "yzb's client")
                 .header(Header.REFERER, "http://www.baidu.com")
+                .body("username=zhangsan")
                 .execute().body();
         Console.log(body);
     }
@@ -100,4 +101,6 @@ public class Client {
         baso.close();
         socket.close();
     }
+
+
 }

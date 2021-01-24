@@ -22,6 +22,7 @@ public class Server {
             HttpRequest hr = new HttpRequest(socket);
 
             System.out.println(hr.getRequestContent());
+            System.out.println(hr.getQueryString());
 
             OutputStream outputStream = socket.getOutputStream();
             String sendMessage = "HTTP/1.1 200 OK\r\nContent-Type: text/html; charset=UTF-8\r\n\r\nhello Client!";
