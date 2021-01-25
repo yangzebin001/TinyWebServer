@@ -29,6 +29,7 @@ public class Client {
                 .header(Header.USER_AGENT, "yzb's client")
                 .header(Header.REFERER, "http://www.baidu.com")
                 .body("username=zhangsan")
+                .body("password=123")
                 .execute().body();
         Console.log(body);
     }
@@ -82,7 +83,7 @@ public class Client {
                 + "User-Agent: yzb's client\r\n"
                 + "Content-Length: 26\r\n"
                 + "\r\n"
-                + "username=lisi&password=123\r\n";
+                + "username=lisi&password=123";
         outputStream.write(sendMessage.getBytes(StandardCharsets.UTF_8));
 
         InputStream inputStream = socket.getInputStream();

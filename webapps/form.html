@@ -2,8 +2,22 @@
     <title>tiny web server</title>
     <body>
         <form method="post" name="posttest" action="http://127.0.0.1:9090">
-            姓名：<input type="text" name="username">
-            密码：<input type="password" name="password">
+            姓名：<input type="text" name="username"><br>
+            密码：<input type="password" name="password"><br>
+            性别：<input type="radio" name="sex" value="male" checked>男
+            <input type="radio" name="sex" value="female">女<br>
+            <input type="checkbox" name="vehicle" value="Bike">I have a bike
+            <br>
+            <input type="checkbox" name="vehicle" value="Car">I have a car
+            城市：<select name="city" multiple="multiple">
+                <option name="n_beijing" value="v_beijing">北京</option>
+                <option name="n_shanghai" value="v_shanghai">伤害</option>
+                <option name="n_chengdu" value="v_chengdu">成都</option>
+                <option name="n_guangzhou" value="v_guangzhou">广州</option>
+            </select><br>
+            <textarea name="message" rows="10" cols="30">
+            The cat was playing in the garden.
+            </textarea><br>
             <input type="submit" value="提交">
         </form>
     </body>

@@ -2,9 +2,10 @@ package com.yzb;
 
 import cn.hutool.core.lang.Console;
 import cn.hutool.core.util.StrUtil;
+import com.yzb.exception.ParseHttpRequestException;
 import org.junit.Test;
 
-import java.util.Locale;
+import java.util.*;
 
 /**
  * @description: use to some common test
@@ -74,4 +75,53 @@ public class CommonTest {
         Console.log(schema2);
         Console.log(schema3);
     }
+    @Test
+    public void test7() throws ParseHttpRequestException {
+        String parameterString = "username=zhangsan&password=123&sex=male&vehicle=Bike&vehicle=Car&city=v_shanghai&message=++++++++++++The+cat+was+playing+in+the+garden.%0D%0A++++++++++++";
+        String[] parameters = parameterString.split("&");
+        Map<String, List<String>> parameterKVs = new HashMap<>();
+        for(int i = 0, n = parameters.length; i < n; i++){
+            String[] entries = parameters[i].split("=");
+            if(entries.length != 2) {
+                throw new ParseHttpRequestException("解析请求参数错误！");
+            }
+            List<String> values = parameterKVs.getOrDefault(entries[0], new ArrayList<>());
+            values.add(entries[1]);
+            parameterKVs.put(entries[0], values);
+        }
+
+        Map<String, String[]> ans = new HashMap<>();
+        ans.put("vehicle",new String[]{"BMW"});
+        for(Map.Entry<String,List<String>> entry : parameterKVs.entrySet()){
+            String[] origin = ans.getOrDefault(entry.getKey(), new String[0]);
+            String[] add = entry.getValue().toArray(new String[0]);
+            int len = origin.length + add.length;
+            String[] result = Arrays.copyOf(origin, len);
+            System.arraycopy(add,0,result,origin.length,add.length);
+            ans.put(entry.getKey(),result);
+        }
+        for(Map.Entry<String, String[]> entry : ans.entrySet()){
+            System.out.println(entry.getKey() + "===" + Arrays.toString(entry.getValue()));
+        }
+        System.out.println(ans.getOrDefault("123",new String[1])[0]);
+    }
+
+    @Test
+    public void test8(){
+        String sendMessage1 = "POST / HTTP/1.1\r\n"
+                + "User-Agent: yzb's client\r\n"
+                + "Content-Length: 26\r\n"
+                + "\r\n"
+                + "username=lisi&password=123\r\n";
+        String sendMessage2 = "POST / HTTP/1.1\r\n"
+                + "User-Agent: yzb's client\r\n"
+                + "Content-Length: 26\r\n"
+                + "\r\n";
+//        System.out.println(StrUtil.subBefore(sendMessage1, "\r\n\r\n", false));
+//        System.out.println(StrUtil.subBefore(sendMessage2, "\r\n\r\n", false));
+//        System.out.println(StrUtil.subAfter(sendMessage1, "\r\n\r\n", false));
+        System.out.println(StrUtil.subAfter(sendMessage2, "\r\n\r\n", false));
+
+    }
+
 }

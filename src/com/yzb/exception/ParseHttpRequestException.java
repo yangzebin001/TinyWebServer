@@ -1,4 +1,4 @@
-package com.yzb.Exception;
+package com.yzb.exception;
 
 /**
  * @description: 解析HTTP请求异常类
