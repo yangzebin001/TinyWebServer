@@ -28,7 +28,7 @@ public class Client {
         String body = HttpRequest.get("127.0.0.1:9090")
                 .header(Header.USER_AGENT, "yzb's client")
                 .header(Header.REFERER, "http://www.baidu.com")
-                .body("username=zhangsan")
+                .body("username=张三")
                 .body("password=123")
                 .execute().body();
         Console.log(body);
@@ -83,7 +83,7 @@ public class Client {
                 + "User-Agent: yzb's client\r\n"
                 + "Content-Length: 26\r\n"
                 + "\r\n"
-                + "username=lisi&password=123";
+                + "username=张三&password=123";
         outputStream.write(sendMessage.getBytes(StandardCharsets.UTF_8));
 
         InputStream inputStream = socket.getInputStream();

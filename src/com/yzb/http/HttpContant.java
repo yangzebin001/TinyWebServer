@@ -16,6 +16,9 @@ public class HttpContant {
     public static final String REQUEST_METHOD_TRACE = "TRACE";
     public static final String REQUEST_METHOD_PATCH = "PATCH";
 
+    public static final String REQUEST_HEADER_CONTENT_LENGTH = "Content-Length";
+    public static final String REQUEST_HEADER_CONTENT_TYPE = "Content-Type";
+
     public static final int RESPONSE_STATUS_CODE_OK = 200;
 
 }

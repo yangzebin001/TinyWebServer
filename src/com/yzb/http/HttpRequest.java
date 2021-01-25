@@ -1,13 +1,14 @@
 package com.yzb.http;
 
+import cn.hutool.core.io.IoUtil;
 import cn.hutool.core.util.StrUtil;
 import com.yzb.exception.ParseHttpRequestException;
 import com.yzb.common.Request;
 
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
+import javax.servlet.ServletInputStream;
+import java.io.*;
 import java.net.Socket;
+import java.nio.charset.StandardCharsets;
 import java.util.*;
 
 /**
@@ -26,6 +27,8 @@ public class HttpRequest extends Request {
 
     private String requestContent;
     private String outlineMessage;
+
+    private String charsetName = StandardCharsets.UTF_8.name(); //默认编码为utf-8
 
     private Map<String, String> headers;
 
@@ -123,7 +126,8 @@ public class HttpRequest extends Request {
 
     @Override
     public String getParameter(String s) {
-        return parameterMap.getOrDefault(s,new String[1])[0];
+        if(getParameterValues(s) == null) return null;
+        return getParameterValues(s)[0];
     }
 
     @Override
@@ -133,7 +137,7 @@ public class HttpRequest extends Request {
 
     @Override
     public String[] getParameterValues(String s) {
-        return parameterMap.getOrDefault(s,new String[0]);
+        return parameterMap.getOrDefault(s,null);
     }
 
     @Override
@@ -141,7 +145,45 @@ public class HttpRequest extends Request {
         return parameterMap;
     }
 
+    @Override
+    public String getCharacterEncoding() {
+        return charsetName;
+    }
 
+    @Override
+    public void setCharacterEncoding(String s) throws UnsupportedEncodingException {
+        charsetName = s;
+        requestContent = new String( s.getBytes(StandardCharsets.UTF_8.name()) , charsetName);
+    }
+
+    @Override
+    public int getContentLength() {
+        String len = null;
+        if((len = getHeader(HttpContant.REQUEST_HEADER_CONTENT_LENGTH)) == null) return -1;
+        return Integer.parseInt(len);
+    }
+
+    @Override
+    public String getContentType() {
+        return getHeader(HttpContant.REQUEST_HEADER_CONTENT_TYPE);
+    }
+
+    @Override
+    public ServletInputStream getInputStream() throws IOException {
+        byte[] bytes = getHttpRequestBodyString().getBytes(charsetName);
+        ByteArrayInputStream byteArrayInputStream = IoUtil.toStream(bytes);
+        ServletInputStream servletInputStream=new ServletInputStream(){
+            public int read() {
+                return byteArrayInputStream.read();
+            }
+        };
+        return servletInputStream;
+    }
+
+    @Override
+    public BufferedReader getReader() throws IOException {
+        return new BufferedReader(new InputStreamReader(getInputStream(),charsetName));
+    }
 
     private void parseHttpRequestContent() throws ParseHttpRequestException {
 
@@ -155,11 +197,9 @@ public class HttpRequest extends Request {
                 int len = inputStream.read(buffer);
                 if (len == -1) break;
                 baso.write(buffer, 0, len);
-                if (len != bufferSize) {
-                    break;
-                }
+                if (len != bufferSize) break;
             }
-            requestContent = baso.toString();
+            requestContent = baso.toString(charsetName);
         } catch (IOException e) {
             throw new ParseHttpRequestException("解析Http请求错误：读取socket输入流错误");
         } finally {
