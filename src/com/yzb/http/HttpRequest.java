@@ -20,6 +20,7 @@ public class HttpRequest extends Request {
     private static final String SEPARATOR_LINES = "\r\n\r\n";
     private static final String LINE_TERMINATOR = "\r\n";
     private static final String LINE_SEPARATOR = ": ";
+    private static final String HEADER_SEPARATOR = ",";
     private static final String PARAMATERS_SEPARATOR = "&";
     private static final String PARAMATERSKV_SEPARATOR = "=";
 
@@ -43,6 +44,38 @@ public class HttpRequest extends Request {
 
     public Map<String,String> getHeaderMap(){
         return headers;
+    }
+
+    @Override
+    public long getDateHeader(String s) {
+        if(headers.containsKey(s)) return -1;
+        Date date = null;
+        try{
+            date = new Date(headers.get(s).trim());
+        } catch (IllegalArgumentException e){
+            return -1;
+        }
+        return date.getTime();
+    }
+
+    @Override
+    public String getHeader(String s) {
+        return headers.get(s);
+    }
+
+    @Override
+    public Enumeration<String> getHeaders(String s) {
+        return (Enumeration<String>) StrUtil.splitTrim(headers.get(s), HEADER_SEPARATOR);
+    }
+
+    @Override
+    public Enumeration<String> getHeaderNames() {
+        return (Enumeration<String>) headers.keySet();
+    }
+
+    @Override
+    public int getIntHeader(String s) {
+        return Integer.parseInt(headers.get(s));
     }
 
     public String getRequestContent(){

@@ -18,6 +18,8 @@ public class Server {
             Socket socket = serverSocket.accept();
             HttpRequest hr = new HttpRequest(socket);
 
+            System.out.println(hr.getHeaderMap());
+
             OutputStream outputStream = socket.getOutputStream();
             String sendMessage = "HTTP/1.1 200 OK\r\nContent-Type: text/html; charset=UTF-8\r\n\r\nhello Client!";
             outputStream.write(sendMessage.getBytes(StandardCharsets.UTF_8));

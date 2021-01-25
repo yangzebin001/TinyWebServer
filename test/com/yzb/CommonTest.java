@@ -1,10 +1,13 @@
 package com.yzb;
 
+import cn.hutool.core.date.DateTime;
+import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.lang.Console;
 import cn.hutool.core.util.StrUtil;
 import com.yzb.exception.ParseHttpRequestException;
 import org.junit.Test;
 
+import java.text.SimpleDateFormat;
 import java.util.*;
 
 /**
@@ -121,7 +124,26 @@ public class CommonTest {
 //        System.out.println(StrUtil.subBefore(sendMessage2, "\r\n\r\n", false));
 //        System.out.println(StrUtil.subAfter(sendMessage1, "\r\n\r\n", false));
         System.out.println(StrUtil.subAfter(sendMessage2, "\r\n\r\n", false));
+    }
 
+    @Test
+    public void test9(){
+        String language = "zh-CN,zh;q=0.8,zh-TW;q=0.7,zh-HK;q=0.5,en-US;q=0.3,en;q=0.2";
+        Map<String,String> a = new HashMap<>();
+        System.out.println(StrUtil.splitTrim(null, ","));
+    }
+
+    @Test
+    public void test10(){
+        String ifum = "Wd, 21 Oct 2015 07:28:00 GMT";
+        Date date = null;
+        try{
+             date = new Date("-1");
+        } catch (IllegalArgumentException e){
+            System.out.println(-1);
+        }
+
+        System.out.println(date.getTime());
     }
 
 }
