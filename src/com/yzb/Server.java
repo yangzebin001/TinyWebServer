@@ -39,8 +39,8 @@ public class Server {
 //            }
 //            outputStream.flush();
 
-            OutputStream outputStream = hs.getOutputStream();
-            hs.setHeader(HttpContant.HEADER_CONTENT_TYPE, HttpContant.DEFAULT_CONTENT_TYPE);
+//            OutputStream outputStream = hs.getOutputStream();
+//            hs.setHeader(HttpContant.HEADER_CONTENT_TYPE, HttpContant.DEFAULT_CONTENT_TYPE);
 //            hs.setContentLength("<html><body>hi client!</body></html>".length());
 //            outputStream.write("<html><body>hi client!</body></html>".getBytes(StandardCharsets.UTF_8));
 //            outputStream.flush();
@@ -57,16 +57,18 @@ public class Server {
 //            outputStream.flush();
 
 
-            FileInputStream bufferedReader = new FileInputStream(new File("webapps/longPdf.pdf"));
-            int size = 0;
-            int b = 0;
-            while((b = bufferedReader.read()) != -1){
-                outputStream.write(b);
-                size++;
-            }
-            hs.setContentLength(size);
-            hs.setContentType("application/pdf");
-            outputStream.flush();
+//            FileInputStream bufferedReader = new FileInputStream(new File("webapps/longPdf.pdf"));
+//            int size = 0;
+//            int b = 0;
+//            while((b = bufferedReader.read()) != -1){
+//                outputStream.write(b);
+//                size++;
+//            }
+//            hs.setContentLength(size);
+//            hs.setContentType("application/pdf");
+//            outputStream.flush();
+
+//            hs.sendRedirect("/hello");
             socket.close();
 
 

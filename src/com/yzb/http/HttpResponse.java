@@ -30,14 +30,14 @@ public class HttpResponse extends Response {
 
     public HttpResponse(Socket socket){
         headers = new HashMap<>();
-        statusCode = HttpContant.RESPONSE_STATUS_CODE_OK;
+        statusCode = HttpContant.RESPONSE_SC_OK;
         commited = false;
         this.socket = socket;
         baos = new ByteArrayOutputStream(){
             @Override
             public void flush() throws IOException {
                 super.flush();
-                HttpResponse.this.commitRequest();
+                HttpResponse.this.commitResponse();
             }
 
             @Override
@@ -159,7 +159,7 @@ public class HttpResponse extends Response {
             @Override
             public void flush() throws IOException {
                 super.flush();
-                HttpResponse.this.commitRequest();
+                HttpResponse.this.commitResponse();
             }
 
             @Override
@@ -192,7 +192,7 @@ public class HttpResponse extends Response {
         if(isCommitted()) throw new IllegalStateException("can not reset response, because it has been commited!");
         baos.reset();
         headers.clear();
-        statusCode = HttpContant.RESPONSE_STATUS_CODE_OK;
+        statusCode = HttpContant.RESPONSE_SC_OK;
         callGetOutputStream = false;
         callGetWriter = false;
     }
@@ -230,15 +230,20 @@ public class HttpResponse extends Response {
         return new PrintWriter(baos);
     }
 
+    @Override
+    public void sendRedirect(String s) throws IOException {
+        setStatus(HttpContant.RESPONSE_SC_MOVED_TEMPORARILY);
+        setHeader("Location", s);
+        commitRespnseOnlyWithHeaders();
+    }
 
 
-    //
-    private void commitRequest() throws IOException {
+    private String generateResponseHeader(){
         StringBuilder sb = new StringBuilder(128);
         sb.append(HttpContant.DEFAULT_PROTOCOL);
         sb.append(" ");
         sb.append(getStatus());
-        if(getStatus() == 200){
+        if(getStatus() == HttpContant.RESPONSE_SC_OK){
             sb.append(" OK");
         }
         sb.append(HttpContant.LINE_TERMINATOR);
@@ -249,10 +254,21 @@ public class HttpResponse extends Response {
             sb.append(HttpContant.LINE_TERMINATOR);
         }
         sb.append(HttpContant.LINE_TERMINATOR);
-        socket.getOutputStream().write(sb.toString().getBytes(StandardCharsets.UTF_8));
+        return sb.toString();
+    }
+
+    private void commitRespnseOnlyWithHeaders() throws IOException {
+        String header = generateResponseHeader();
+        socket.getOutputStream().write(header.getBytes(StandardCharsets.UTF_8));
+        socket.getOutputStream().flush();
+        commited = true;
+    }
+
+    private void commitResponse() throws IOException {
+        String header = generateResponseHeader();
+        socket.getOutputStream().write(header.getBytes(StandardCharsets.UTF_8));
         socket.getOutputStream().write(baos.toByteArray());
         socket.getOutputStream().flush();
-
         commited = true;
     }
 
