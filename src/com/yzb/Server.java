@@ -2,6 +2,7 @@ package com.yzb;
 
 import com.yzb.exception.ParseHttpRequestException;
 import com.yzb.http.HttpContant;
+import com.yzb.http.HttpProcessor;
 import com.yzb.http.HttpRequest;
 import com.yzb.http.HttpResponse;
 
@@ -40,22 +41,36 @@ public class Server {
     }
 
 
-    public void start() throws IOException, ParseHttpRequestException {
-        ServerSocket serverSocket = new ServerSocket(port);
+    public void start() {
+        ServerSocket serverSocket = null;
+        try {
+            serverSocket = new ServerSocket(port);
+        } catch (IOException e) {
+            // server init failed!!!
+            e.printStackTrace();
+        }
         while(true){
-            Socket socket = serverSocket.accept();
-            HttpRequest hr = new HttpRequest(socket);
+            Socket socket = null;
+            HttpRequest httpRequest = null;
+            HttpResponse httpResponse = null;
+            HttpProcessor httpProcessor = null;
+            try {
+                socket = serverSocket.accept();
+                httpRequest = new HttpRequest(socket);
+                httpResponse = new HttpResponse(socket);
+                httpProcessor = new HttpProcessor();
+                httpProcessor.execute(socket,httpRequest,httpResponse);
+
+            } catch (IOException e) {
+                //accept http request failed!
+                e.printStackTrace();
+            } catch (ParseHttpRequestException e) {
+                //bad http request
+                e.printStackTrace();
+            }
 
 
-            HttpResponse hs = new HttpResponse(socket);
-
-            PrintWriter outputStream = hs.getWriter();
-            hs.setHeader(HttpContant.HEADER_CONTENT_TYPE, HttpContant.DEFAULT_CONTENT_TYPE);
-            hs.setContentLength("<html><body>hello client!</body></html>".length());
-            outputStream.print("<html><body>hello client!</body></html>");
-            outputStream.close();
-
-    //            BufferedReader bufferedReader = new BufferedReader(new FileReader(new File("webapps/form.html")));
+            //            BufferedReader bufferedReader = new BufferedReader(new FileReader(new File("webapps/form.html")));
     //            String line = "";
     //            while((line = bufferedReader.readLine()) != null){
     //                outputStream.write(line);
@@ -93,7 +108,6 @@ public class Server {
     //            outputStream.flush();
 
     //            hs.sendRedirect("/hello");
-            socket.close();
         }
     }
 }
