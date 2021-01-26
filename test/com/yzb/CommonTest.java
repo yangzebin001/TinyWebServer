@@ -7,6 +7,7 @@ import cn.hutool.core.util.StrUtil;
 import com.yzb.exception.ParseHttpRequestException;
 import org.junit.Test;
 
+import java.io.*;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
@@ -129,8 +130,7 @@ public class CommonTest {
     @Test
     public void test9(){
         String language = "zh-CN,zh;q=0.8,zh-TW;q=0.7,zh-HK;q=0.5,en-US;q=0.3,en;q=0.2";
-        Map<String,String> a = new HashMap<>();
-        System.out.println(StrUtil.splitTrim(null, ","));
+        System.out.println(StrUtil.splitTrim(language, ","));
     }
 
     @Test
@@ -144,6 +144,48 @@ public class CommonTest {
         }
 
         System.out.println(date.getTime());
+    }
+
+    @Test
+    public void test11(){
+//        System.out.println(new Date(0).toString());
+        TimeZone timeZone = TimeZone.getTimeZone("UTC");
+        Calendar calendar = Calendar.getInstance(timeZone);
+        calendar.setTimeInMillis(0);
+        SimpleDateFormat simpleDateFormat =
+                new SimpleDateFormat("EE MMM dd HH:mm:ss zzz yyyy", Locale.US);
+        simpleDateFormat.setTimeZone(timeZone);
+        System.out.println("UTC:     " + simpleDateFormat.format(calendar.getTime()));
+    }
+
+    @Test
+    public void test12(){
+        String characterEncoding = "utf-8";
+        String ContentType = "multipart/form-data; boundary=something";
+        Map<String,String> header = new HashMap<>();
+        header.put("ContentType", ContentType);
+        String contentType = header.getOrDefault("ContentType", "");
+        if(StrUtil.indexOfIgnoreCase(contentType,"charset=") == -1) {
+            System.out.println(-1);
+            return;
+        }
+        String ans =  StrUtil.subBefore(contentType,"charset=", false) + "charset=" + characterEncoding;
+        System.out.println(ans);
+    }
+
+    @Test
+    public void test13(){
+
+        String contentType = "multipart/form-data; boundary=something";
+        String ans = StrUtil.subAfter(contentType,"charset=", false);
+        System.out.println(ans);
+    }
+
+    @Test
+    public void test14() throws IOException {
+        BufferedReader bufferedReader = new BufferedReader(new FileReader(new File("webapps/form.html")));
+        System.out.println(bufferedReader.readLine());
+
     }
 
 }

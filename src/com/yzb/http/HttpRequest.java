@@ -18,13 +18,6 @@ import java.util.*;
  */
 public class HttpRequest extends Request {
 
-    private static final String SEPARATOR_LINES = "\r\n\r\n";
-    private static final String LINE_TERMINATOR = "\r\n";
-    private static final String LINE_SEPARATOR = ": ";
-    private static final String HEADER_SEPARATOR = ",";
-    private static final String PARAMATERS_SEPARATOR = "&";
-    private static final String PARAMATERSKV_SEPARATOR = "=";
-
     private String requestContent;
     private String outlineMessage;
 
@@ -68,7 +61,7 @@ public class HttpRequest extends Request {
 
     @Override
     public Enumeration<String> getHeaders(String s) {
-        return (Enumeration<String>) StrUtil.splitTrim(headers.get(s), HEADER_SEPARATOR);
+        return (Enumeration<String>) StrUtil.splitTrim(headers.get(s), HttpContant.HEADER_SEPARATOR);
     }
 
     @Override
@@ -159,13 +152,13 @@ public class HttpRequest extends Request {
     @Override
     public int getContentLength() {
         String len = null;
-        if((len = getHeader(HttpContant.REQUEST_HEADER_CONTENT_LENGTH)) == null) return -1;
+        if((len = getHeader(HttpContant.HEADER_CONTENT_LENGTH)) == null) return -1;
         return Integer.parseInt(len);
     }
 
     @Override
     public String getContentType() {
-        return getHeader(HttpContant.REQUEST_HEADER_CONTENT_TYPE);
+        return getHeader(HttpContant.HEADER_CONTENT_TYPE);
     }
 
     @Override
@@ -212,10 +205,10 @@ public class HttpRequest extends Request {
     }
 
     private void parseHttpRequestHeader() throws ParseHttpRequestException {
-        String[] headerStrings = getHttpRequestHeaderString().split(LINE_TERMINATOR);
+        String[] headerStrings = getHttpRequestHeaderString().split(HttpContant.LINE_TERMINATOR);
         outlineMessage = headerStrings[0];
         for(int i = 1, n = headerStrings.length; i < n; i++){
-            String[] line = headerStrings[i].split(LINE_SEPARATOR);
+            String[] line = headerStrings[i].split(HttpContant.LINE_SEPARATOR);
             if(line.length != 2)
                 throw new ParseHttpRequestException("解析请求头部错误！");
             headers.put(line[0].trim(), line[1].trim());
@@ -232,11 +225,11 @@ public class HttpRequest extends Request {
 
         if(StrUtil.isEmpty(parameterString)) return;
 
-        String[] parameters = parameterString.split(PARAMATERS_SEPARATOR);
+        String[] parameters = parameterString.split(HttpContant.PARAMATERS_SEPARATOR);
 
         Map<String, List<String>> parameterKVs = new HashMap<>();
         for(int i = 0, n = parameters.length; i < n; i++){
-            String[] entries = parameters[i].split(PARAMATERSKV_SEPARATOR);
+            String[] entries = parameters[i].split(HttpContant.PARAMATERSKV_SEPARATOR);
             if(entries.length != 2)
                 throw new ParseHttpRequestException("解析请求参数错误！");
             List<String> values = parameterKVs.getOrDefault(entries[0], new ArrayList<>());
@@ -255,10 +248,10 @@ public class HttpRequest extends Request {
     }
 
     private String getHttpRequestHeaderString(){
-        return StrUtil.subBefore(requestContent, SEPARATOR_LINES,false);
+        return StrUtil.subBefore(requestContent, HttpContant.SEPARATOR_LINES,false);
     }
 
     private String getHttpRequestBodyString(){
-        return StrUtil.subAfter(requestContent, SEPARATOR_LINES,false);
+        return StrUtil.subAfter(requestContent, HttpContant.SEPARATOR_LINES,false);
     }
 }
