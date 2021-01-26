@@ -61,12 +61,12 @@ public class HttpRequest extends Request {
 
     @Override
     public Enumeration<String> getHeaders(String s) {
-        return (Enumeration<String>) StrUtil.splitTrim(headers.get(s), HttpContant.HEADER_SEPARATOR);
+        return Collections.enumeration(StrUtil.splitTrim(headers.get(s), HttpContant.HEADER_SEPARATOR));
     }
 
     @Override
     public Enumeration<String> getHeaderNames() {
-        return (Enumeration<String>) headers.keySet();
+        return Collections.enumeration(headers.keySet());
     }
 
     @Override
@@ -125,7 +125,7 @@ public class HttpRequest extends Request {
 
     @Override
     public Enumeration<String> getParameterNames() {
-        return (Enumeration<String>) parameterMap.keySet();
+        return Collections.enumeration(parameterMap.keySet());
     }
 
     @Override
