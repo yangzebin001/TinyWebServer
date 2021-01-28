@@ -1,127 +1,41 @@
 package com.yzb;
 
-import cn.hutool.core.date.DateUtil;
-import cn.hutool.core.date.TimeInterval;
-import cn.hutool.log.LogFactory;
-import com.yzb.exception.ParseHttpRequestException;
-import com.yzb.http.HttpProcessor;
-import com.yzb.http.HttpRequest;
-import com.yzb.http.HttpResponse;
+/**
+ * @Description
+ * @Date 2021/1/28 下午10:31
+ * @Creater BeckoninGshy
+ */
+public interface Server {
 
-import java.io.*;
-import java.net.ServerSocket;
-import java.net.Socket;
+    public String getName();
 
-public class Server implements Runnable{
-    private volatile static Server serverInstance;
-    private int port;
+    public void setName();
 
-    private static ServerSocket serverSocket;
+    public int getPort();
 
-    private Server() {
+    public void setPort(int port);
 
-    }
+    public String getAddress();
 
-    public static Server getServerInstance() {
-        if (serverInstance == null) {
-            synchronized (Server.class) {
-                if (serverInstance == null) {
-                    serverInstance = new Server();
-                }
-            }
-        }
-        return serverInstance;
-    }
+    public void setAddress(String address);
 
-    public void setPort(int port) {
-        this.port = port;
-    }
+    public String getShutdown();
 
-    public int getPort() {
-        return port;
-    }
+    public void setShutdown(String shutdown);
 
-    public void start() {
-        TimeInterval startTimer = DateUtil.timer();
-        init();
-        LogFactory.get().info("Server startup in {} ms", startTimer.intervalMs());
-    }
+    public void addService(Service service);
 
-    public void init(){
-        Thread service = new Thread(this);
-        service.start();
-        LogFactory.get().info("Initializing service [http-bio-{}]",port);
-    }
+    public Service findService(String service);
 
-    @Override
-    public void run() {
+    public Service[] findServices();
 
-        try {
-            serverSocket = new ServerSocket(port);
+    public String[] getServiceNames();
 
-            while (true) {
+    public void removeService(Service service);
 
-                Socket socket = serverSocket.accept();
-                Runnable runnable = () -> {
+    public ClassLoader getParentClassLoader();
 
-                    try {
-                        HttpRequest httpRequest = new HttpRequest(socket);
-                        HttpResponse httpResponse = new HttpResponse(socket);
-                        HttpProcessor httpProcessor = new HttpProcessor();
+    public void setParentClassLoader(ClassLoader classLoader);
 
-                        httpProcessor.execute(socket, httpRequest, httpResponse);
-                    } catch (ParseHttpRequestException e) {
-                        //bad request
-                        e.printStackTrace();
-                    }
-
-                };
-                //add connector to thread pool
-                ConnectorThreadPool.run(runnable);
-
-                //            BufferedReader bufferedReader = new BufferedReader(new FileReader(new File("webapps/form.html")));
-                //            String line = "";
-                //            while((line = bufferedReader.readLine()) != null){
-                //                outputStream.write(line);
-                //                outputStream.write(HttpContant.LINE_TERMINATOR);
-                //            }
-                //            outputStream.flush();
-
-                //            OutputStream outputStream = hs.getOutputStream();
-                //            hs.setHeader(HttpContant.HEADER_CONTENT_TYPE, HttpContant.DEFAULT_CONTENT_TYPE);
-                //            hs.setContentLength("<html><body>hi client!</body></html>".length());
-                //            outputStream.write("<html><body>hi client!</body></html>".getBytes(StandardCharsets.UTF_8));
-                //            outputStream.flush();
-                //            outputStream.close();
-
-                //            FileInputStream bufferedReader = new FileInputStream(new File("webapps/form.html"));
-                //            int size = 0;
-                //            int b = 0;
-                //            while((b = bufferedReader.read()) != -1){
-                //                outputStream.write(b);
-                //                size++;
-                //            }
-                //            hs.setContentLength(size);
-                //            outputStream.flush();
-
-
-                //            FileInputStream bufferedReader = new FileInputStream(new File("webapps/longPdf.pdf"));
-                //            int size = 0;
-                //            int b = 0;
-                //            while((b = bufferedReader.read()) != -1){
-                //                outputStream.write(b);
-                //                size++;
-                //            }
-                //            hs.setContentLength(size);
-                //            hs.setContentType("application/pdf");
-                //            outputStream.flush();
-
-                //            hs.sendRedirect("/hello");
-            }
-        } catch (IOException e) {
-            // connector failed
-            e.printStackTrace();
-        }
-    }
 
 }

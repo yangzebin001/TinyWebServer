@@ -11,10 +11,10 @@ import java.io.IOException;
  */
 public class TinyWebServer {
     public static void main(String[] args) throws IOException, ParseHttpRequestException {
-        Server server = Server.getServerInstance();
+        StandardServer standardServer = StandardServer.getServerInstance();
         int port = 9090;
-        server.setPort(port);
-        server.start();
+        standardServer.setPort(port);
+        standardServer.start();
 
     }
 }
