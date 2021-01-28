@@ -232,6 +232,9 @@ public class HttpResponse extends Response {
 
     @Override
     public void sendRedirect(String s) throws IOException {
+        if (callGetWriter || callGetOutputStream) {
+            throw new IllegalStateException("already call getWriter or getOutputStream!");
+        }
         setStatus(HttpContant.RESPONSE_SC_MOVED_TEMPORARILY);
         setHeader("Location", s);
         commitRespnseOnlyWithHeaders();
