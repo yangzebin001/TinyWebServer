@@ -17,8 +17,10 @@ public class HttpProcessor {
 
             PrintWriter outputStream = httpResponse.getWriter();
             httpResponse.setHeader(HttpContant.HEADER_CONTENT_TYPE, HttpContant.DEFAULT_CONTENT_TYPE);
-            httpResponse.setContentLength("<html><body>hello client!</body></html>".length());
-            outputStream.print("<html><body>hello client!</body></html>");
+            outputStream.print("<html><body>hello client");
+            outputStream.print("<br>");
+            outputStream.print(Thread.currentThread());
+            outputStream.print("</body></html>");
             outputStream.close();
 
 

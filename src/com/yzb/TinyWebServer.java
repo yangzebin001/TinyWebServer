@@ -1,6 +1,7 @@
 package com.yzb;
 
 import com.yzb.exception.ParseHttpRequestException;
+import com.yzb.http.HttpConnector;
 
 import java.io.IOException;
 
@@ -11,9 +12,25 @@ import java.io.IOException;
  */
 public class TinyWebServer {
     public static void main(String[] args) throws IOException, ParseHttpRequestException {
-        StandardServer standardServer = StandardServer.getServerInstance();
         int port = 9090;
-        standardServer.setPort(port);
+        StandardServer standardServer = StandardServer.getServerInstance();
+        StandardService standardService = new StandardService();
+        HttpConnector httpConnector = new HttpConnector();
+        StandardContainer standardContainer = new StandardContainer();
+
+        httpConnector.setPort(9090);
+        httpConnector.setProtocol("http");
+        httpConnector.setService(standardService);
+
+        standardContainer.setService(standardService);
+
+        standardService.addConnector(httpConnector);
+        standardService.setServer(standardServer);
+        standardService.setContainer(standardContainer);
+
+        standardServer.addService(standardService);
+
+        standardServer.init();
         standardServer.start();
 
     }

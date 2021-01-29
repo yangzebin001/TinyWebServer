@@ -3,6 +3,8 @@ package com.yzb;
 import com.yzb.common.Request;
 import com.yzb.common.Response;
 
+import java.net.Socket;
+
 /**
  * @Description
  * @Date 2021/1/28 下午10:17
@@ -42,9 +44,9 @@ public interface Connector extends Lifecycle {
 
     public void setUseBodyEncodingForURI(boolean isUse);
 
-    public Request createRequest();
+    public Request createRequest(Socket socket);
 
-    public Response createResponse();
+    public Response createResponse(Socket socket);
 
 
 }

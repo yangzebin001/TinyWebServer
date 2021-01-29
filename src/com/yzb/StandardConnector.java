@@ -1,9 +1,17 @@
 package com.yzb;
 
+import cn.hutool.log.LogFactory;
 import com.yzb.common.Request;
 import com.yzb.common.Response;
 import com.yzb.exception.LifecycleException;
+import com.yzb.exception.ParseHttpRequestException;
+import com.yzb.http.HttpProcessor;
+import com.yzb.http.HttpRequest;
+import com.yzb.http.HttpResponse;
 
+import java.io.IOException;
+import java.net.ServerSocket;
+import java.net.Socket;
 import java.util.Map;
 
 /**
@@ -13,14 +21,15 @@ import java.util.Map;
  */
 public class StandardConnector implements Connector{
 
-    private String name;
-    private Map<String,String> properties;
-    private Service service;
-    private int port = -1;
-    private String protocol;
+    protected String name;
+    protected Map<String,String> properties;
+    protected Service service;
+    protected int port = -1;
+    protected String protocol;
     private String scheme;
     private String uriEncoding;
     private boolean useBodyEncodingForURI;
+    protected static ServerSocket serverSocket;
 
     @Override
     public String getName() {
@@ -104,17 +113,18 @@ public class StandardConnector implements Connector{
     }
 
     @Override
-    public Request createRequest() {
+    public Request createRequest(Socket socket) {
         return null;
     }
 
     @Override
-    public Response createResponse() {
+    public Response createResponse(Socket socket) {
         return null;
     }
 
     @Override
     public void init() throws LifecycleException {
+
 
     }
 

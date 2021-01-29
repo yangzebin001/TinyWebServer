@@ -1,3 +1,5 @@
+package com.yzb;
+
 import cn.hutool.core.util.RandomUtil;
 import com.yzb.Service;
 import com.yzb.StandardServer;

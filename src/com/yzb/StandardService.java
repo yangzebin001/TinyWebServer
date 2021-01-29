@@ -1,5 +1,6 @@
 package com.yzb;
 
+import cn.hutool.log.LogFactory;
 import com.yzb.Connector;
 import com.yzb.Container;
 import com.yzb.Server;
@@ -14,29 +15,52 @@ import com.yzb.exception.LifecycleException;
 public class StandardService implements Service {
 
     private Container container;
-    private String name;
+    private String name = "StandardService";
     private Server server;
     private Connector[] connectors = new Connector[0];
+    private final Object connectorsLock = new Object();
     private ClassLoader parentClassLoader;
 
     @Override
     public void init() throws LifecycleException {
-
+        container.init();
+        synchronized (connectorsLock) {
+            for(Connector connector : connectors){
+                connector.init();
+            }
+        }
     }
 
     @Override
     public void start() throws LifecycleException {
+        container.start();
 
+        synchronized (connectorsLock) {
+            for(Connector connector : connectors){
+                connector.start();
+            }
+        }
+
+
+        LogFactory.get().info("stared service {}", getName());
     }
 
     @Override
     public void stop() throws LifecycleException {
-
+        for(Connector connector : connectors){
+            connector.stop();
+        }
+        container.stop();
+        LogFactory.get().info("stopped service {}", getName());
     }
 
     @Override
     public void destroy() throws LifecycleException {
-
+        for(Connector connector : connectors){
+            connector.destroy();
+        }
+        container.destroy();
+        LogFactory.get().info("destroyed service {}", getName());
     }
 
     @Override
@@ -81,11 +105,13 @@ public class StandardService implements Service {
 
     @Override
     public void addConnector(Connector connector) {
-        int len = connectors.length;
-        Connector[] newConnectors = new Connector[len+1];
-        System.arraycopy(connectors,0,newConnectors,0,len);
-        newConnectors[len] = connector;
-        connectors = newConnectors;
+        synchronized (connectorsLock) {
+            int len = connectors.length;
+            Connector[] newConnectors = new Connector[len+1];
+            System.arraycopy(connectors,0,newConnectors,0,len);
+            newConnectors[len] = connector;
+            connectors = newConnectors;
+        }
     }
 
     @Override
@@ -114,18 +140,22 @@ public class StandardService implements Service {
 
     @Override
     public void removeConnector(Connector connector) {
-        int idx = 0, len = connectors.length;
-        while(idx < len && connectors[idx] != connector) idx++;
-        if(idx == len) return;
-        try {
-            connectors[idx].stop();
-        } catch (LifecycleException e) {
-            //noting to do.
+        synchronized (connectorsLock) {
+
+            int idx = 0, len = connectors.length;
+            while(idx < len && connectors[idx] != connector) idx++;
+            if(idx == len) return;
+            try {
+                connectors[idx].stop();
+            } catch (LifecycleException e) {
+                //noting to do.
+            }
+
+            Connector[] newConnectors = new Connector[len-1];
+            System.arraycopy(connectors,0,newConnectors,0,idx);
+            System.arraycopy(connectors,idx+1,newConnectors,idx,len-idx-1);
+            connectors = newConnectors;
         }
-        Connector[] newConnectors = new Connector[len-1];
-        System.arraycopy(connectors,0,newConnectors,0,idx);
-        System.arraycopy(connectors,idx+1,newConnectors,idx,len-idx-1);
-        connectors = newConnectors;
     }
 
     @Override

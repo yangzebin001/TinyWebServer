@@ -15,13 +15,14 @@ import java.net.Socket;
 
 public class StandardServer implements Server, Runnable {
     private volatile static StandardServer standardServerInstance;
-    private int port;
-    private String name;
-    private String shutdown;
-    private String address;
+    private int port = -1;
+    private String name = "TinyWebServer";
+    private String shutdown = "shutdown";
+    private String address = "localhost";
     private ClassLoader parentClassLoader;
 
     private Service[] services = new Service[0];
+    private final Object servicesLock = new Object();
 
     private static ServerSocket serverSocket;
 
@@ -39,8 +40,14 @@ public class StandardServer implements Server, Runnable {
         return standardServerInstance;
     }
 
+    @Override
     public void setPort(int port) {
         this.port = port;
+    }
+
+    @Override
+    public int getPort() {
+        return port;
     }
 
     @Override
@@ -133,25 +140,41 @@ public class StandardServer implements Server, Runnable {
     }
 
     @Override
-    public int getPort() {
-        return port;
-    }
-
-    @Override
     public void start() {
         TimeInterval startTimer = DateUtil.timer();
-        init();
+        synchronized (servicesLock) {
+            for(Service service : services){
+                try {
+                    service.start();
+                } catch (LifecycleException e) {
+                    e.printStackTrace();
+                    LogFactory.get().error("Start service{} failed", service.getName());
+                }
+            }
+        }
         LogFactory.get().info("Server startup in {} ms", startTimer.intervalMs());
     }
 
     @Override
     public void stop() throws LifecycleException {
-
+        for (Service service : services){
+            try {
+                service.stop();
+            } catch (LifecycleException e) {
+            }
+        }
+        LogFactory.get().info("Stopped server{}", getName());
     }
 
     @Override
     public void destroy() throws LifecycleException {
-
+        for (Service service : services){
+            try {
+                service.destroy();
+            } catch (LifecycleException e) {
+            }
+        }
+        LogFactory.get().info("destroyed Server{}", getName());
     }
 
     @Override
@@ -161,9 +184,16 @@ public class StandardServer implements Server, Runnable {
 
     @Override
     public void init(){
-        Thread service = new Thread(this);
-        service.start();
-        LogFactory.get().info("Initializing service [http-bio-{}]",port);
+        synchronized (servicesLock) {
+            for (Service service : services){
+                try {
+                    service.init();
+                } catch (LifecycleException e) {
+                    LogFactory.get().error("Init service {} failed",service.getName());
+                }
+            }
+            LogFactory.get().info("Init server {}", getName());
+        }
     }
 
     @Override
@@ -175,22 +205,7 @@ public class StandardServer implements Server, Runnable {
             while (true) {
 
                 Socket socket = serverSocket.accept();
-                Runnable runnable = () -> {
 
-                    try {
-                        HttpRequest httpRequest = new HttpRequest(socket);
-                        HttpResponse httpResponse = new HttpResponse(socket);
-                        HttpProcessor httpProcessor = new HttpProcessor();
-
-                        httpProcessor.execute(socket, httpRequest, httpResponse);
-                    } catch (ParseHttpRequestException e) {
-                        //bad request
-                        e.printStackTrace();
-                    }
-
-                };
-                //add connector to thread pool
-                ConnectorThreadPool.run(runnable);
 
                 //            BufferedReader bufferedReader = new BufferedReader(new FileReader(new File("webapps/form.html")));
                 //            String line = "";

@@ -268,6 +268,7 @@ public class HttpResponse extends Response {
     }
 
     private void commitResponse() throws IOException {
+        setContentLength(baos.size());
         String header = generateResponseHeader();
         socket.getOutputStream().write(header.getBytes(StandardCharsets.UTF_8));
         socket.getOutputStream().write(baos.toByteArray());

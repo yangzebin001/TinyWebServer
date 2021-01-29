@@ -10,7 +10,7 @@ import java.util.concurrent.TimeUnit;
  * @Creater BeckoninGshy
  */
 public class ConnectorThreadPool {
-    private static ThreadPoolExecutor tpe = new ThreadPoolExecutor(20,100,60,TimeUnit.SECONDS,new LinkedBlockingDeque<>(30));
+    private static ThreadPoolExecutor tpe = new ThreadPoolExecutor(20,100,60,TimeUnit.SECONDS,new LinkedBlockingDeque<>(100));
     public static void run(Runnable runnable){
         tpe.execute(runnable);
     }
