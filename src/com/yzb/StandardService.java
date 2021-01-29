@@ -16,7 +16,7 @@ public class StandardService implements Service {
     private Container container;
     private String name;
     private Server server;
-    private Connector[] connectors;
+    private Connector[] connectors = new Connector[0];
     private ClassLoader parentClassLoader;
 
     @Override
@@ -81,17 +81,30 @@ public class StandardService implements Service {
 
     @Override
     public void addConnector(Connector connector) {
-
+        int len = connectors.length;
+        Connector[] newConnectors = new Connector[len+1];
+        System.arraycopy(connectors,0,newConnectors,0,len);
+        newConnectors[len] = connector;
+        connectors = newConnectors;
     }
 
     @Override
     public Connector findConnector(String name) {
+        int len = connectors.length;
+        for (Connector value : connectors) {
+            if (value.getName().equals(name)) return value;
+        }
         return null;
     }
 
     @Override
     public String[] getConnectorNames() {
-        return new String[0];
+        int len = connectors.length;
+        String[] names = new String[len];
+        for(int i = 0; i < len; i++){
+            names[i] = connectors[i].getName();
+        }
+        return names;
     }
 
     @Override
@@ -101,7 +114,18 @@ public class StandardService implements Service {
 
     @Override
     public void removeConnector(Connector connector) {
-
+        int idx = 0, len = connectors.length;
+        while(idx < len && connectors[idx] != connector) idx++;
+        if(idx == len) return;
+        try {
+            connectors[idx].stop();
+        } catch (LifecycleException e) {
+            //noting to do.
+        }
+        Connector[] newConnectors = new Connector[len-1];
+        System.arraycopy(connectors,0,newConnectors,0,idx);
+        System.arraycopy(connectors,idx+1,newConnectors,idx,len-idx-1);
+        connectors = newConnectors;
     }
 
     @Override

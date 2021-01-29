@@ -11,6 +11,10 @@ public interface Container extends Lifecycle {
 
     public void setName(String name);
 
+    public Service getService();
+
+    public void setService(Service service);
+
     public Container getParent();
 
     public void setParent(Container parent);

@@ -9,9 +9,10 @@ import com.yzb.exception.LifecycleException;
  */
 public class StandardContainer implements Container{
     private String name;
+    private Service service;
     private Container parent;
     private ClassLoader parentClassLoader;
-    private Container[] children;
+    private Container[] children = new Container[0];
 
     @Override
     public String getName() {
@@ -21,6 +22,16 @@ public class StandardContainer implements Container{
     @Override
     public void setName(String name) {
         this.name = name;
+    }
+
+    @Override
+    public Service getService() {
+        return service;
+    }
+
+    @Override
+    public void setService(Service service) {
+        this.service = service;
     }
 
     @Override
@@ -45,22 +56,41 @@ public class StandardContainer implements Container{
 
     @Override
     public void addChild(Container container) {
-
+        int len = children.length;
+        Container[] newChildren = new Container[len+1];
+        System.arraycopy(children,0,newChildren,0,len);
+        newChildren[len] = container;
+        children = newChildren;
     }
 
     @Override
     public Container findChild(String container) {
+        int len = children.length;
+        for (Container value : children) {
+            if (value.getName().equals(name)) return value;
+        }
         return null;
     }
 
     @Override
     public Container[] findChildren() {
-        return new Container[0];
+        return children;
     }
 
     @Override
     public void removeChild(Container container) {
-
+        int idx = 0, len = children.length;
+        while(idx < len && children[idx] != container) idx++;
+        if(idx == len) return;
+        try {
+            children[idx].stop();
+        } catch (LifecycleException e) {
+            //noting to do.
+        }
+        Container[] newContainers = new Container[len-1];
+        System.arraycopy(children,0,newContainers,0,idx);
+        System.arraycopy(children,idx+1,newContainers,idx,len-idx-1);
+        children = newContainers;
     }
 
     @Override
