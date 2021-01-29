@@ -21,7 +21,7 @@ public class StandardServer implements Server, Runnable {
     private String address;
     private ClassLoader parentClassLoader;
 
-    private Service[] services;
+    private Service[] services = new Service[0];
 
     private static ServerSocket serverSocket;
 
@@ -99,7 +99,7 @@ public class StandardServer implements Server, Runnable {
     @Override
     public void removeService(Service service) {
         int idx = 0, len = services.length;
-        while(idx < len && !services[idx].equals(service)) idx++;
+        while(idx < len && services[idx] != service) idx++;
         if(idx == len) return;
         try {
             services[idx].stop();
@@ -108,7 +108,7 @@ public class StandardServer implements Server, Runnable {
         }
         Service[] newServices = new Service[len-1];
         System.arraycopy(services,0,newServices,0,idx);
-        System.arraycopy(services,idx+1,newServices,idx,len-idx);
+        System.arraycopy(services,idx+1,newServices,idx,len-idx-1);
         services = newServices;
     }
 
