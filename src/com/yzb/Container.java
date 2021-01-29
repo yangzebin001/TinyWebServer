@@ -9,7 +9,7 @@ public interface Container extends Lifecycle {
 
     public String getName();
 
-    public void setName();
+    public void setName(String name);
 
     public Container getParent();
 

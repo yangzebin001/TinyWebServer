@@ -32,7 +32,7 @@ public interface Connector extends Lifecycle {
 
     public String getScheme();
 
-    public void etScheme(String scheme);
+    public void setScheme(String scheme);
 
     public String getURIEncoding();
 

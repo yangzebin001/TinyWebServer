@@ -13,7 +13,11 @@ import com.yzb.exception.LifecycleException;
  */
 public class StandardService implements Service {
 
-
+    private Container container;
+    private String name;
+    private Server server;
+    private Connector[] connectors;
+    private ClassLoader parentClassLoader;
 
     @Override
     public void init() throws LifecycleException {
@@ -42,12 +46,12 @@ public class StandardService implements Service {
 
     @Override
     public Container getContainer() {
-        return null;
+        return container;
     }
 
     @Override
     public void setContainer(Container container) {
-
+        this.container = container;
     }
 
     @Override
@@ -57,22 +61,22 @@ public class StandardService implements Service {
 
     @Override
     public String getName() {
-        return null;
+        return name;
     }
 
     @Override
-    public void setName() {
-
+    public void setName(String name) {
+        this.name = name;
     }
 
     @Override
     public Server getServer() {
-        return null;
+        return server;
     }
 
     @Override
     public void setServer(Server server) {
-
+        this.server = server;
     }
 
     @Override
@@ -92,7 +96,7 @@ public class StandardService implements Service {
 
     @Override
     public Connector[] findConnectors() {
-        return new Connector[0];
+        return connectors;
     }
 
     @Override
@@ -102,11 +106,11 @@ public class StandardService implements Service {
 
     @Override
     public ClassLoader getParentClassLoader() {
-        return null;
+        return parentClassLoader;
     }
 
     @Override
     public void setParentClassLoader(ClassLoader classLoader) {
-
+        this.parentClassLoader = classLoader;
     }
 }

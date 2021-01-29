@@ -8,34 +8,39 @@ import com.yzb.exception.LifecycleException;
  * @Creater BeckoninGshy
  */
 public class StandardContainer implements Container{
+    private String name;
+    private Container parent;
+    private ClassLoader parentClassLoader;
+    private Container[] children;
+
     @Override
     public String getName() {
-        return null;
+        return name;
     }
 
     @Override
-    public void setName() {
-
+    public void setName(String name) {
+        this.name = name;
     }
 
     @Override
     public Container getParent() {
-        return null;
+        return parent;
     }
 
     @Override
     public void setParent(Container parent) {
-
+        this.parent = parent;
     }
 
     @Override
     public ClassLoader getParentClassLoader() {
-        return null;
+        return parentClassLoader;
     }
 
     @Override
     public void setParentClassLoader(ClassLoader classLoader) {
-
+        this.parentClassLoader = classLoader;
     }
 
     @Override
