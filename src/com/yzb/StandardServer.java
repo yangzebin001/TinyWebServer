@@ -3,6 +3,7 @@ package com.yzb;
 import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.date.TimeInterval;
 import cn.hutool.log.LogFactory;
+import cn.hutool.system.SystemUtil;
 import com.yzb.exception.LifecycleException;
 import com.yzb.exception.ParseHttpRequestException;
 import com.yzb.http.HttpProcessor;
@@ -12,6 +13,9 @@ import com.yzb.http.HttpResponse;
 import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.Set;
 
 public class StandardServer implements Server, Runnable {
     private volatile static StandardServer standardServerInstance;
@@ -184,6 +188,7 @@ public class StandardServer implements Server, Runnable {
 
     @Override
     public void init(){
+        logJVM();
         synchronized (servicesLock) {
             for (Service service : services){
                 try {
@@ -196,6 +201,23 @@ public class StandardServer implements Server, Runnable {
         }
     }
 
+    private static void logJVM() {
+        Map<String, String> infos = new LinkedHashMap<>();
+        infos.put("Server version", "DiyTomcat/1.0.1");
+        infos.put("Server built", "2020-04-08 10:20:22");
+        infos.put("Server number", "1.0.1");
+        infos.put("OS Name\t", SystemUtil.get("os.name"));
+        infos.put("OS version", SystemUtil.get("os.version"));
+        infos.put("Architecture", SystemUtil.get("java.home"));
+        infos.put("Java Home", SystemUtil.get("java home"));
+        infos.put("JVM Version", SystemUtil.get("java.runtime.version"));
+        infos.put("JVM Vendor", SystemUtil.get("java.vm.specification.vendor"));
+        Set<String> keys = infos.keySet();
+        for (String key : keys) {
+            LogFactory.get().info(key + ":\t\t" + infos.get(key));
+        }
+    }
+
     @Override
     public void run() {
 
@@ -203,48 +225,8 @@ public class StandardServer implements Server, Runnable {
             serverSocket = new ServerSocket(port);
 
             while (true) {
-
                 Socket socket = serverSocket.accept();
 
-
-                //            BufferedReader bufferedReader = new BufferedReader(new FileReader(new File("webapps/form.html")));
-                //            String line = "";
-                //            while((line = bufferedReader.readLine()) != null){
-                //                outputStream.write(line);
-                //                outputStream.write(HttpContant.LINE_TERMINATOR);
-                //            }
-                //            outputStream.flush();
-
-                //            OutputStream outputStream = hs.getOutputStream();
-                //            hs.setHeader(HttpContant.HEADER_CONTENT_TYPE, HttpContant.DEFAULT_CONTENT_TYPE);
-                //            hs.setContentLength("<html><body>hi client!</body></html>".length());
-                //            outputStream.write("<html><body>hi client!</body></html>".getBytes(StandardCharsets.UTF_8));
-                //            outputStream.flush();
-                //            outputStream.close();
-
-                //            FileInputStream bufferedReader = new FileInputStream(new File("webapps/form.html"));
-                //            int size = 0;
-                //            int b = 0;
-                //            while((b = bufferedReader.read()) != -1){
-                //                outputStream.write(b);
-                //                size++;
-                //            }
-                //            hs.setContentLength(size);
-                //            outputStream.flush();
-
-
-                //            FileInputStream bufferedReader = new FileInputStream(new File("webapps/longPdf.pdf"));
-                //            int size = 0;
-                //            int b = 0;
-                //            while((b = bufferedReader.read()) != -1){
-                //                outputStream.write(b);
-                //                size++;
-                //            }
-                //            hs.setContentLength(size);
-                //            hs.setContentType("application/pdf");
-                //            outputStream.flush();
-
-                //            hs.sendRedirect("/hello");
             }
         } catch (IOException e) {
             // connector failed

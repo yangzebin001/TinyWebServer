@@ -188,3 +188,27 @@ INFO : Init server TinyWebServer
 INFO : stared service StandardService
 01 29,2021 23:15:22 下午 com.yzb.StandardServer start
 INFO : Server startup in 5 ms
+01 29,2021 23:46:09 下午 com.yzb.StandardServer logJVM
+INFO : Server version:		DiyTomcat/1.0.1
+01 29,2021 23:46:09 下午 com.yzb.StandardServer logJVM
+INFO : Server built:		2020-04-08 10:20:22
+01 29,2021 23:46:09 下午 com.yzb.StandardServer logJVM
+INFO : Server number:		1.0.1
+01 29,2021 23:46:09 下午 com.yzb.StandardServer logJVM
+INFO : OS Name	:		Linux
+01 29,2021 23:46:09 下午 com.yzb.StandardServer logJVM
+INFO : OS version:		5.10.10-200.fc33.x86_64
+01 29,2021 23:46:09 下午 com.yzb.StandardServer logJVM
+INFO : Architecture:		/home/beckoningshy/.jdks/corretto-1.8.0_275/jre
+01 29,2021 23:46:09 下午 com.yzb.StandardServer logJVM
+INFO : Java Home:		null
+01 29,2021 23:46:09 下午 com.yzb.StandardServer logJVM
+INFO : JVM Version:		1.8.0_275-b01
+01 29,2021 23:46:09 下午 com.yzb.StandardServer logJVM
+INFO : JVM Vendor:		Oracle Corporation
+01 29,2021 23:46:09 下午 com.yzb.StandardServer init
+INFO : Init server TinyWebServer
+01 29,2021 23:46:09 下午 com.yzb.StandardService start
+INFO : stared service StandardService
+01 29,2021 23:46:09 下午 com.yzb.StandardServer start
+INFO : Server startup in 1 ms
