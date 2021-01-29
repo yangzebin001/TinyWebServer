@@ -7,7 +7,7 @@ package com.yzb;
  * @Date 2021/1/28 下午10:07
  * @Creater BeckoninGshy
  */
-public interface Service {
+public interface Service extends Lifecycle {
 
 
     public Container getContainer();

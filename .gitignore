@@ -26,3 +26,5 @@ webapps/*.pdf
 
 logs/*
 
+out/*
+

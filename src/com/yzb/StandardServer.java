@@ -3,6 +3,7 @@ package com.yzb;
 import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.date.TimeInterval;
 import cn.hutool.log.LogFactory;
+import com.yzb.exception.LifecycleException;
 import com.yzb.exception.ParseHttpRequestException;
 import com.yzb.http.HttpProcessor;
 import com.yzb.http.HttpRequest;
@@ -12,14 +13,19 @@ import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
 
-public class StandardServer implements Runnable{
+public class StandardServer implements Server, Runnable {
     private volatile static StandardServer standardServerInstance;
     private int port;
+    private String name;
+    private String shutdown;
+    private String address;
+    private ClassLoader parentClassLoader;
+
+    private Service[] services;
 
     private static ServerSocket serverSocket;
 
     private StandardServer() {
-
     }
 
     public static StandardServer getServerInstance() {
@@ -37,16 +43,123 @@ public class StandardServer implements Runnable{
         this.port = port;
     }
 
+    @Override
+    public String getAddress() {
+        return address;
+    }
+
+    @Override
+    public void setAddress(String address) {
+        this.address = address;
+    }
+
+    @Override
+    public String getShutdown() {
+        return shutdown;
+    }
+
+    @Override
+    public void setShutdown(String shutdown) {
+        this.shutdown = shutdown;
+    }
+
+    @Override
+    public void addService(Service service) {
+        int len = services.length;
+        Service[] newServices = new Service[len+1];
+        System.arraycopy(services,0,newServices,0,len);
+        newServices[len] = service;
+        services = newServices;
+    }
+
+    @Override
+    public Service findService(String service) {
+        int len = services.length;
+        for (Service value : services) {
+            if (value.getName().equals(service)) return value;
+        }
+        return null;
+    }
+
+    @Override
+    public Service[] findServices() {
+        return services;
+    }
+
+    @Override
+    public String[] getServiceNames() {
+        int len = services.length;
+        String[] names = new String[len];
+        for(int i = 0; i < len; i++){
+            names[i] = services[i].getName();
+        }
+        return names;
+    }
+
+    @Override
+    public void removeService(Service service) {
+        int idx = 0, len = services.length;
+        while(idx < len && !services[idx].equals(service)) idx++;
+        if(idx == len) return;
+        try {
+            services[idx].stop();
+        } catch (LifecycleException e) {
+            //noting to do.
+        }
+        Service[] newServices = new Service[len-1];
+        System.arraycopy(services,0,newServices,0,idx);
+        System.arraycopy(services,idx+1,newServices,idx,len-idx);
+        services = newServices;
+    }
+
+    @Override
+    public ClassLoader getParentClassLoader() {
+        return parentClassLoader;
+    }
+
+    @Override
+    public void setParentClassLoader(ClassLoader classLoader) {
+        this.parentClassLoader = classLoader;
+    }
+
+    @Override
+    public String getName() {
+        return name;
+    }
+
+    @Override
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    @Override
     public int getPort() {
         return port;
     }
 
+    @Override
     public void start() {
         TimeInterval startTimer = DateUtil.timer();
         init();
         LogFactory.get().info("Server startup in {} ms", startTimer.intervalMs());
     }
 
+    @Override
+    public void stop() throws LifecycleException {
+
+    }
+
+    @Override
+    public void destroy() throws LifecycleException {
+
+    }
+
+    @Override
+    public String getState() {
+        return null;
+    }
+
+    @Override
     public void init(){
         Thread service = new Thread(this);
         service.start();

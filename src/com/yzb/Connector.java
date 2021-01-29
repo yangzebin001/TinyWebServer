@@ -8,7 +8,7 @@ import com.yzb.common.Response;
  * @Date 2021/1/28 下午10:17
  * @Creater BeckoninGshy
  */
-public interface Connector {
+public interface Connector extends Lifecycle {
 
     public String getName();
 

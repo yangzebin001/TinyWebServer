@@ -5,7 +5,7 @@ package com.yzb;
  * @Date 2021/1/28 下午10:18
  * @Creater BeckoninGshy
  */
-public interface Container {
+public interface Container extends Lifecycle {
 
     public String getName();
 

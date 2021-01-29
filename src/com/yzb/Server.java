@@ -5,11 +5,11 @@ package com.yzb;
  * @Date 2021/1/28 下午10:31
  * @Creater BeckoninGshy
  */
-public interface Server {
+public interface Server extends Lifecycle {
 
     public String getName();
 
-    public void setName();
+    public void setName(String name);
 
     public int getPort();
 
