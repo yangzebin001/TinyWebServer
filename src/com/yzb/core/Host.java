@@ -8,6 +8,7 @@ import com.yzb.common.StandardContainer;
  * @Creater BeckoninGshy
  */
 public class Host extends StandardContainer {
+
     private String appBase;
 
     public String getAppBase() {

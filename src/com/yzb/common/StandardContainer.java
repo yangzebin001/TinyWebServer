@@ -95,22 +95,30 @@ public class StandardContainer implements Container{
 
     @Override
     public void init() throws LifecycleException {
-
+        for(Container child : children){
+            child.init();
+        }
     }
 
     @Override
     public void start() throws LifecycleException {
-
+        for(Container child : children){
+            child.start();
+        }
     }
 
     @Override
     public void stop() throws LifecycleException {
-
+        for(Container child : children){
+            child.stop();
+        }
     }
 
     @Override
     public void destroy() throws LifecycleException {
-
+        for(Container child : children){
+            child.destroy();
+        }
     }
 
     @Override

@@ -1,10 +1,13 @@
 package com.yzb;
 
+import com.yzb.common.Server;
 import com.yzb.common.StandardContainer;
 import com.yzb.common.StandardServer;
 import com.yzb.common.StandardService;
+import com.yzb.exception.LifecycleException;
 import com.yzb.exception.ParseHttpRequestException;
 import com.yzb.http.HttpConnector;
+import com.yzb.util.ServerXMLParser;
 
 import java.io.IOException;
 
@@ -14,27 +17,9 @@ import java.io.IOException;
  * @Creater BeckoninGshy
  */
 public class TinyWebServer {
-    public static void main(String[] args) throws IOException, ParseHttpRequestException {
-        int port = 9090;
-        StandardServer standardServer = StandardServer.getServerInstance();
-        StandardService standardService = new StandardService();
-        HttpConnector httpConnector = new HttpConnector();
-        StandardContainer standardContainer = new StandardContainer();
-
-        httpConnector.setPort(9090);
-        httpConnector.setProtocol("http");
-        httpConnector.setService(standardService);
-
-        standardContainer.setService(standardService);
-
-        standardService.addConnector(httpConnector);
-        standardService.setServer(standardServer);
-        standardService.setContainer(standardContainer);
-
-        standardServer.addService(standardService);
-
-        standardServer.init();
-        standardServer.start();
-
+    public static void main(String[] args) throws LifecycleException {
+        Server server = ServerXMLParser.getServerWithAutoPack();
+        server.init();
+        server.start();
     }
 }

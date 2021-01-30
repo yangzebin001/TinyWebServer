@@ -26,7 +26,7 @@ public class StandardServer implements Server, Runnable {
 
     private static ServerSocket serverSocket;
 
-    private StandardServer() {
+    public StandardServer() {
     }
 
     public static StandardServer getServerInstance() {
@@ -199,9 +199,9 @@ public class StandardServer implements Server, Runnable {
 
     private static void logJVM() {
         Map<String, String> infos = new LinkedHashMap<>();
-        infos.put("Server version", "DiyTomcat/1.0.1");
-        infos.put("Server built", "2020-04-08 10:20:22");
-        infos.put("Server number", "1.0.1");
+        infos.put("Server Name", ServerContext.serverName);
+        infos.put("Server built", DateUtil.now());
+        infos.put("Server version", ServerContext.version);
         infos.put("OS Name\t", SystemUtil.get("os.name"));
         infos.put("OS version", SystemUtil.get("os.version"));
         infos.put("Architecture", SystemUtil.get("java.home"));

@@ -37,7 +37,6 @@ public class StandardService implements Service {
             }
         }
 
-
         LogFactory.get().info("stared service {}", getName());
     }
 

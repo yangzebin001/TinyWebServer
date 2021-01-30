@@ -83,6 +83,9 @@ public class HttpConnector extends StandardConnector implements Runnable {
             Runnable runnable = () -> {
                 HttpRequest request = createRequest(finalSocket);
                 HttpResponse response = createResponse(finalSocket);
+
+                LogFactory.get().info("receiving from {}, request: {}", finalSocket.getRemoteSocketAddress().toString(), request.getRequestURI());
+
                 HttpProcessor httpProcessor = new HttpProcessor();
                 httpProcessor.execute(finalSocket, request, response);
             };

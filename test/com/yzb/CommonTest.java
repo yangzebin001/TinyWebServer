@@ -4,6 +4,7 @@ import cn.hutool.core.date.DateTime;
 import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.lang.Console;
 import cn.hutool.core.util.StrUtil;
+import com.yzb.common.ServerContext;
 import com.yzb.exception.ParseHttpRequestException;
 import org.junit.Test;
 
@@ -190,7 +191,8 @@ public class CommonTest {
 
     @Test
     public void test15(){
-
+        System.out.println(ServerContext.serverBasePath);
+        System.out.println(ServerContext.serverXMLPath);
     }
 
 }
