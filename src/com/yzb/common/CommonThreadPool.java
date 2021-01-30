@@ -1,4 +1,4 @@
-package com.yzb;
+package com.yzb.common;
 
 import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.ThreadPoolExecutor;
@@ -9,7 +9,7 @@ import java.util.concurrent.TimeUnit;
  * @Date 2021/1/27 下午12:07
  * @Creater BeckoninGshy
  */
-public class ConnectorThreadPool {
+public class CommonThreadPool {
     private static ThreadPoolExecutor tpe = new ThreadPoolExecutor(20,100,60,TimeUnit.SECONDS,new LinkedBlockingDeque<>(100));
     public static void run(Runnable runnable){
         tpe.execute(runnable);

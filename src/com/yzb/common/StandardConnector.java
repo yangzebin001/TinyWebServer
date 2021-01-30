@@ -1,15 +1,7 @@
-package com.yzb;
+package com.yzb.common;
 
-import cn.hutool.log.LogFactory;
-import com.yzb.common.Request;
-import com.yzb.common.Response;
 import com.yzb.exception.LifecycleException;
-import com.yzb.exception.ParseHttpRequestException;
-import com.yzb.http.HttpProcessor;
-import com.yzb.http.HttpRequest;
-import com.yzb.http.HttpResponse;
 
-import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.Map;
@@ -27,6 +19,7 @@ public class StandardConnector implements Connector{
     protected int port = -1;
     protected String protocol;
     private String scheme;
+    protected long connectionTimeout = 0;
     private String uriEncoding;
     private boolean useBodyEncodingForURI;
     protected static ServerSocket serverSocket;
@@ -80,6 +73,16 @@ public class StandardConnector implements Connector{
     @Override
     public void setProtocol(String protocol) {
         this.protocol = protocol;
+    }
+
+    @Override
+    public void setConnectionTimeout(long timeout) {
+        this.connectionTimeout = timeout;
+    }
+
+    @Override
+    public long getConnectionTimeout() {
+        return connectionTimeout;
     }
 
     @Override

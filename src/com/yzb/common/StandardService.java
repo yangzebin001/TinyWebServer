@@ -1,10 +1,6 @@
-package com.yzb;
+package com.yzb.common;
 
 import cn.hutool.log.LogFactory;
-import com.yzb.Connector;
-import com.yzb.Container;
-import com.yzb.Server;
-import com.yzb.Service;
 import com.yzb.exception.LifecycleException;
 
 /**

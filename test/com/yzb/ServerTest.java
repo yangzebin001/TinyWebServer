@@ -1,9 +1,9 @@
 package com.yzb;
 
 import cn.hutool.core.util.RandomUtil;
-import com.yzb.Service;
-import com.yzb.StandardServer;
-import com.yzb.StandardService;
+import com.yzb.common.Service;
+import com.yzb.common.StandardServer;
+import com.yzb.common.StandardService;
 import org.junit.*;
 
 /**

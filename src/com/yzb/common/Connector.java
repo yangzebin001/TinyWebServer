@@ -1,7 +1,4 @@
-package com.yzb;
-
-import com.yzb.common.Request;
-import com.yzb.common.Response;
+package com.yzb.common;
 
 import java.net.Socket;
 
@@ -31,6 +28,10 @@ public interface Connector extends Lifecycle {
     public String getProtocol();
 
     public void setProtocol(String protocol);
+
+    public void setConnectionTimeout(long timeout);
+
+    public long getConnectionTimeout();
 
     public String getScheme();
 

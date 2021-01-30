@@ -1,10 +1,8 @@
 package com.yzb.http;
 
 import cn.hutool.log.LogFactory;
-import com.yzb.ConnectorThreadPool;
-import com.yzb.StandardConnector;
-import com.yzb.common.Request;
-import com.yzb.common.Response;
+import com.yzb.common.CommonThreadPool;
+import com.yzb.common.StandardConnector;
 import com.yzb.exception.LifecycleException;
 import com.yzb.exception.ParseHttpRequestException;
 
@@ -89,7 +87,7 @@ public class HttpConnector extends StandardConnector implements Runnable {
                 httpProcessor.execute(finalSocket, request, response);
             };
             //add connector to thread pool
-            ConnectorThreadPool.run(runnable);
+            CommonThreadPool.run(runnable);
         }
     }
 }

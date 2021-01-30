@@ -1,4 +1,4 @@
-package com.yzb;
+package com.yzb.common;
 
 import com.yzb.exception.LifecycleException;
 
