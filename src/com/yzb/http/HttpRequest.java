@@ -2,6 +2,7 @@ package com.yzb.http;
 
 import cn.hutool.core.io.IoUtil;
 import cn.hutool.core.util.StrUtil;
+import com.yzb.common.Connector;
 import com.yzb.exception.ParseHttpRequestException;
 import com.yzb.common.Request;
 
@@ -23,14 +24,16 @@ public class HttpRequest extends Request {
 
     private String charsetName = StandardCharsets.UTF_8.name(); //默认编码为utf-8
 
-    private Map<String, String> headers;
+    private final Map<String, String> headers;
 
-    private Map<String, String[]> parameterMap;
+    private final Map<String, String[]> parameterMap;
 
     private final Socket socket;
+    private final Connector connector;
 
-    public HttpRequest(Socket socket) throws ParseHttpRequestException {
+    public HttpRequest(Socket socket, Connector connector) throws ParseHttpRequestException {
         this.socket = socket;
+        this.connector = connector;
         headers = new HashMap<>();
         parameterMap = new HashMap<>();
         parseHttpRequestContent();
@@ -165,17 +168,58 @@ public class HttpRequest extends Request {
     public ServletInputStream getInputStream() throws IOException {
         byte[] bytes = getHttpRequestBodyString().getBytes(charsetName);
         ByteArrayInputStream byteArrayInputStream = IoUtil.toStream(bytes);
-        ServletInputStream servletInputStream=new ServletInputStream(){
+        return new ServletInputStream(){
             public int read() {
                 return byteArrayInputStream.read();
             }
         };
-        return servletInputStream;
     }
 
     @Override
     public BufferedReader getReader() throws IOException {
         return new BufferedReader(new InputStreamReader(getInputStream(),charsetName));
+    }
+
+
+    @Override
+    public String getRemoteAddr() {
+        return socket.getInetAddress().getHostAddress();
+    }
+
+    @Override
+    public String getRemoteHost() {
+        return socket.getInetAddress().getHostName();
+    }
+
+    @Override
+    public int getRemotePort() {
+        return socket.getPort();
+    }
+
+    @Override
+    public String getLocalName() {
+        return socket.getLocalAddress().getHostName();
+    }
+
+    @Override
+    public String getLocalAddr() {
+        return socket.getLocalAddress().getHostAddress();
+    }
+
+    @Override
+    public int getLocalPort() {
+        return socket.getLocalPort();
+    }
+
+
+    @Override
+    public String getServerName() {
+        return connector.getServer().getName();
+    }
+
+    @Override
+    public int getServerPort() {
+        return connector.getPort();
     }
 
     private void parseHttpRequestContent() throws ParseHttpRequestException {

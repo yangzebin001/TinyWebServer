@@ -26,6 +26,8 @@ public class HttpContant {
 
     public static final String HEADER_CONTENT_LENGTH = "Content-Length";
     public static final String HEADER_CONTENT_TYPE = "Content-Type";
+    public static final String HEADER_HOST = "Host";
+    public static final String HEADER_SERVER = "Server";
 
     public static final String DEFAULT_CONTENT_TYPE = "text/html; charset=UTF-8";
     public static final String DEFAULT_CHARACTERENCODING = "UTF-8";

@@ -116,13 +116,18 @@ public class StandardConnector implements Connector{
     }
 
     @Override
-    public Request createRequest(Socket socket) {
+    public Request createRequest(Socket socket, Connector connector) {
         return null;
     }
 
     @Override
     public Response createResponse(Socket socket) {
         return null;
+    }
+
+    @Override
+    public Server getServer() {
+        return service.getServer();
     }
 
     @Override

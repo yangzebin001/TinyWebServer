@@ -2,6 +2,7 @@ package com.yzb.http;
 
 import cn.hutool.log.LogFactory;
 import com.yzb.common.CommonThreadPool;
+import com.yzb.common.Connector;
 import com.yzb.common.StandardConnector;
 import com.yzb.exception.LifecycleException;
 import com.yzb.exception.ParseHttpRequestException;
@@ -33,7 +34,7 @@ public class HttpConnector extends StandardConnector implements Runnable {
     @Override
     public void start() throws LifecycleException {
         super.start();
-        // start a thread to handle connector
+        // start a thread to handle connecting
         workThread = new Thread(this);
         workThread.start();
     }
@@ -54,9 +55,9 @@ public class HttpConnector extends StandardConnector implements Runnable {
     }
 
     @Override
-    public HttpRequest createRequest(Socket socket) {
+    public HttpRequest createRequest(Socket socket, Connector connector) {
         try {
-            return new HttpRequest(socket);
+            return new HttpRequest(socket, connector);
         } catch (ParseHttpRequestException e) {
             e.printStackTrace();
             //bad request
@@ -81,10 +82,10 @@ public class HttpConnector extends StandardConnector implements Runnable {
 
             Socket finalSocket = socket;
             Runnable runnable = () -> {
-                HttpRequest request = createRequest(finalSocket);
+                HttpRequest request = createRequest(finalSocket, this);
                 HttpResponse response = createResponse(finalSocket);
 
-                LogFactory.get().info("receiving from {}, request: {}", finalSocket.getRemoteSocketAddress().toString(), request.getRequestURI());
+                LogFactory.get().info("receiving from {}, request: {}", request.getRemoteAddr(), request.getRequestURI());
 
                 HttpProcessor httpProcessor = new HttpProcessor();
                 httpProcessor.execute(finalSocket, request, response);

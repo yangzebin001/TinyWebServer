@@ -45,9 +45,11 @@ public interface Connector extends Lifecycle {
 
     public void setUseBodyEncodingForURI(boolean isUse);
 
-    public Request createRequest(Socket socket);
+    public Request createRequest(Socket socket, Connector connector);
 
     public Response createResponse(Socket socket);
+
+    public Server getServer();
 
 
 }

@@ -5,7 +5,7 @@ import com.yzb.common.StandardContainer;
 import java.io.File;
 
 /**
- * @Description a Context represents an app under webapps folder
+ * @Description The Context element represents a web application under webapps folder.
  * @Date 2021/1/30 下午9:37
  * @Creater BeckoninGshy
  */
