@@ -2,9 +2,8 @@ package com.yzb.http;
 
 import cn.hutool.log.LogFactory;
 import com.yzb.common.*;
-import com.yzb.core.Context;
 import com.yzb.core.Engine;
-import com.yzb.core.ServletContext;
+import com.yzb.common.StandardServletContext;
 import com.yzb.exception.LifecycleException;
 import com.yzb.exception.ParseHttpRequestException;
 
@@ -22,7 +21,7 @@ public class HttpConnector extends StandardConnector implements Runnable {
     private Thread workThread;
 
     // find the ServletContext that matched URI, if all ServletContext mismatched URI, default use "/" context
-    public ServletContext getServletContext(String URI) {
+    public ApplicationContext getServletContext(String URI) {
         Service service = getService();
         Container container = service.getContainer();
         Container[] servletContexts = null;
@@ -32,11 +31,11 @@ public class HttpConnector extends StandardConnector implements Runnable {
         }
         assert servletContexts != null;
         for(Container servletContext : servletContexts){
-            if(! (servletContext instanceof ServletContext)) continue;
-            if(((ServletContext) servletContext).getPath().equals("/")) defaultContext = servletContext;
-            else if(URI.startsWith(((ServletContext) servletContext).getPath())) return (ServletContext) servletContext;
+            if(! (servletContext instanceof ApplicationContext)) continue;
+            if(((ApplicationContext) servletContext).getPath().equals("/")) defaultContext = servletContext;
+            else if(URI.startsWith(((ApplicationContext) servletContext).getPath())) return (ApplicationContext) servletContext;
         }
-        return (ServletContext) defaultContext;
+        return (ApplicationContext) defaultContext;
     }
 
 

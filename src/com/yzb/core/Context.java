@@ -6,6 +6,7 @@ import com.yzb.common.StandardContainer;
 import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * @Description The Context element represents a web application under webapps folder.
@@ -14,7 +15,7 @@ import java.util.Map;
  */
 public class Context extends StandardContainer {
 
-    private Map<String,Object> attributes = new HashMap<>();
+    private Map<String,Object> attributes = new ConcurrentHashMap<>();
     private String path;
 
     public Context(){}

@@ -1,4 +1,6 @@
-package com.yzb.core;
+package com.yzb.common;
+
+import com.yzb.core.Context;
 
 import javax.servlet.*;
 import javax.servlet.descriptor.JspConfigDescriptor;
@@ -15,16 +17,16 @@ import java.util.Set;
  * @Date 2021/2/1 下午1:29
  * @Creater BeckoninGshy
  */
-public class ServletContext extends Context implements javax.servlet.ServletContext {
+public class StandardServletContext extends Context implements ServletContext {
 
     @Override
-    public javax.servlet.ServletContext getContext(String s) {
+    public ServletContext getContext(String s) {
         return null;
     }
 
     @Override
     public String getContextPath() {
-        return getPath();
+        return null;
     }
 
     @Override

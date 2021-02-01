@@ -3,19 +3,13 @@ package com.yzb.util;
 import cn.hutool.core.convert.Convert;
 import cn.hutool.core.io.FileUtil;
 import com.yzb.common.*;
-import com.yzb.core.Context;
 import com.yzb.core.Engine;
 import com.yzb.core.Host;
-import com.yzb.core.ServletContext;
 import com.yzb.http.HttpConnector;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
-
-import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * @Description
@@ -126,26 +120,6 @@ public class ServerXMLParser {
         return hosts;
     }
 
-    public static Context[] getContextsByScanDir(Host host){
-
-        String contextsDirectory = host.getAppBase();
-        File contexts = new File(contextsDirectory);
-        if(!contexts.exists() || !contexts.isDirectory()) return new Context[0];
-        File[] files = contexts.listFiles();
-        List<ServletContext> contextList = new ArrayList<>();
-        for(File file : files){
-            if(file.isDirectory()){
-                ServletContext t = new ServletContext();
-                if("ROOT".equals(file.getName())){
-                    t.setPath("/");
-                }else{
-                    t.setPath("/" + file.getName());
-                }
-                contextList.add(t);
-            }
-        }
-        return contextList.toArray(new ServletContext[0]);
-    }
 
     public static Server getServerWithAutoPack(){
         Server server = getServer();
@@ -168,13 +142,6 @@ public class ServerXMLParser {
                 host.setParent(engine);
 
                 engine.addChild(host);
-            }
-            // only parse contexts in defaulthost
-            Context[] contexts = getContextsByScanDir(engine.getDefaultHost());
-            Host defalutHost = engine.getDefaultHost();
-            for(Context context : contexts){
-                defalutHost.addChild(context);
-                context.setParent(defalutHost);
             }
         }
 
