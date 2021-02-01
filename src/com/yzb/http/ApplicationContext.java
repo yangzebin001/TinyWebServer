@@ -9,6 +9,8 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
+import javax.servlet.Servlet;
+import javax.servlet.ServletException;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.HashMap;
@@ -34,6 +36,14 @@ public class ApplicationContext extends StandardServletContext {
 
     public WebappClassLoader getWebappClassLoader() {
         return webappClassLoader;
+    }
+
+    public String getServletURLToName(String url){
+        return servletURLToName.get(url);
+    }
+
+    public String getServletNameToClass(String name){
+        return servletNameToClass.get(name);
     }
 
     @Override
@@ -74,4 +84,18 @@ public class ApplicationContext extends StandardServletContext {
             servletURLToName.put(url, name);
         }
     }
+
+    public String getServletURLToClass(String url) {
+        return getServletNameToClass(getServletURLToName(url));
+    }
+
+    @Override
+    public Servlet getServlet(String s) throws ServletException {
+        return super.getServlet(s);
+    }
+
+    public Servlet getServlet(Class<?> clazz) throws ServletException, IllegalAccessException, InstantiationException {
+        return (Servlet) clazz.newInstance();
+    }
+
 }

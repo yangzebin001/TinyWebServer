@@ -1,6 +1,10 @@
 package com.yzb.http;
 
 
+import com.yzb.classcloader.WebappClassLoader;
+
+import javax.servlet.Servlet;
+import javax.servlet.ServletException;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.Socket;
@@ -12,20 +16,25 @@ import java.net.Socket;
  */
 public class HttpProcessor {
 
-    public void execute(Socket socket, HttpRequest httpRequest, HttpResponse httpResponse){
+    public void execute(Socket socket, HttpRequest request, HttpResponse response){
         try{
 
-            PrintWriter outputStream = httpResponse.getWriter();
-            httpResponse.setHeader(HttpContant.HEADER_CONTENT_TYPE, HttpContant.DEFAULT_CONTENT_TYPE);
-            httpResponse.setHeader(HttpContant.HEADER_SERVER,  httpRequest.getServerName());
-            outputStream.print("<html><body>hello client");
-            outputStream.print("<br>this page handled by ");
-            outputStream.print(Thread.currentThread());
-            outputStream.print("</body></html>");
-            outputStream.close();
+            ApplicationContext appContext = (ApplicationContext) request.getServletContext();
+            WebappClassLoader webappClassLoader = appContext.getWebappClassLoader();
+            String servletURL = request.getRequestURI().substring(appContext.getPath().length());
+
+            if(servletURL.startsWith("/") && appContext.getServletURLToClass(servletURL) != null){
+                Class<?> clazz = webappClassLoader.loadClass(appContext.getServletURLToClass(servletURL));
+                Servlet servlet = appContext.getServlet(clazz);
+                servlet.service(request,response);
+            }else{
+                PrintWriter writer = response.getWriter();
+                writer.print("this is common page.");
+                writer.close();
+            }
 
 
-        }  catch (IOException e) {
+        }  catch (Exception e) {
             //500
             e.printStackTrace();
         } finally {

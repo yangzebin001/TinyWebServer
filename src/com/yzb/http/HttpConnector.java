@@ -1,12 +1,15 @@
 package com.yzb.http;
 
 import cn.hutool.log.LogFactory;
+import com.yzb.classcloader.WebappClassLoader;
 import com.yzb.common.*;
 import com.yzb.core.Engine;
 import com.yzb.common.StandardServletContext;
 import com.yzb.exception.LifecycleException;
 import com.yzb.exception.ParseHttpRequestException;
 
+import javax.servlet.Servlet;
+import javax.servlet.ServletException;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -107,8 +110,6 @@ public class HttpConnector extends StandardConnector implements Runnable {
 
                 LogFactory.get().info("receiving from {}, request: {}", request.getRemoteAddr(), request.getRequestURI());
 
-                //getContext
-                System.out.println(request.getServletContext().getContextPath());
 
                 HttpProcessor httpProcessor = new HttpProcessor();
                 httpProcessor.execute(finalSocket, request, response);
