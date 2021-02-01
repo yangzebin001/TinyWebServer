@@ -29,7 +29,8 @@ public class Context extends StandardContainer {
     }
 
     public String getRealPath(){
-        return ServerContext.serverBasePath+ File.separator + getPath();
+        if(getPath().equals("/")) return ((Host)parent).getAppBase() + File.separator + "ROOT";
+        return ((Host)parent).getAppBase() + getPath();
     }
 
     public Object getAttribute(String key) {

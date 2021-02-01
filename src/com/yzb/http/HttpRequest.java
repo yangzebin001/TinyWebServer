@@ -31,7 +31,7 @@ public class HttpRequest extends Request {
 
     private final Socket socket;
     private final Connector connector;
-    private ServletContext servletContext;
+    private ApplicationContext servletContext;
 
 
     public HttpRequest(Socket socket, Connector connector) throws ParseHttpRequestException {

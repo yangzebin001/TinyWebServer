@@ -43,7 +43,7 @@ public class Engine extends StandardContainer {
         super.init();
     }
 
-    public void loadContext(){
+    private void loadContext(){
         String contextsDirectory = getDefaultHost().getAppBase();
         File contexts = new File(contextsDirectory);
         if(!contexts.exists() || !contexts.isDirectory()) return;
@@ -51,7 +51,7 @@ public class Engine extends StandardContainer {
         List<ApplicationContext> contextList = new ArrayList<>();
         for(File file : files){
             if(file.isDirectory()){
-                ApplicationContext t = new ApplicationContext();
+                ApplicationContext t = new ApplicationContext(file.getAbsolutePath());
                 if("ROOT".equals(file.getName())){
                     t.setPath("/");
                 }else{
