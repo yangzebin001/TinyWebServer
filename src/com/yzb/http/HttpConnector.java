@@ -1,9 +1,10 @@
 package com.yzb.http;
 
 import cn.hutool.log.LogFactory;
-import com.yzb.common.CommonThreadPool;
-import com.yzb.common.Connector;
-import com.yzb.common.StandardConnector;
+import com.yzb.common.*;
+import com.yzb.core.Context;
+import com.yzb.core.Engine;
+import com.yzb.core.ServletContext;
 import com.yzb.exception.LifecycleException;
 import com.yzb.exception.ParseHttpRequestException;
 
@@ -19,6 +20,25 @@ import java.net.Socket;
 public class HttpConnector extends StandardConnector implements Runnable {
 
     private Thread workThread;
+
+    // find the ServletContext that matched URI, if all ServletContext mismatched URI, default use "/" context
+    public ServletContext getServletContext(String URI) {
+        Service service = getService();
+        Container container = service.getContainer();
+        Container[] servletContexts = null;
+        Container defaultContext = null;
+        if(container instanceof Engine){
+            servletContexts = ((Engine) container).getDefaultHost().findChildren();
+        }
+        assert servletContexts != null;
+        for(Container servletContext : servletContexts){
+            if(! (servletContext instanceof ServletContext)) continue;
+            if(((ServletContext) servletContext).getPath().equals("/")) defaultContext = servletContext;
+            else if(URI.startsWith(((ServletContext) servletContext).getPath())) return (ServletContext) servletContext;
+        }
+        return (ServletContext) defaultContext;
+    }
+
 
     @Override
     public void init() throws LifecycleException {
@@ -81,11 +101,15 @@ public class HttpConnector extends StandardConnector implements Runnable {
             }
 
             Socket finalSocket = socket;
+            HttpConnector cn = new HttpConnector();
             Runnable runnable = () -> {
                 HttpRequest request = createRequest(finalSocket, this);
                 HttpResponse response = createResponse(finalSocket);
 
                 LogFactory.get().info("receiving from {}, request: {}", request.getRemoteAddr(), request.getRequestURI());
+
+                //getContext
+                System.out.println(request.getServletContext().getContextPath());
 
                 HttpProcessor httpProcessor = new HttpProcessor();
                 httpProcessor.execute(finalSocket, request, response);

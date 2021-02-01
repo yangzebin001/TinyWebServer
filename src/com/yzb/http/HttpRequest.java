@@ -6,6 +6,7 @@ import com.yzb.common.Connector;
 import com.yzb.exception.ParseHttpRequestException;
 import com.yzb.common.Request;
 
+import javax.servlet.ServletContext;
 import javax.servlet.ServletInputStream;
 import java.io.*;
 import java.net.Socket;
@@ -30,15 +31,22 @@ public class HttpRequest extends Request {
 
     private final Socket socket;
     private final Connector connector;
+    private ServletContext servletContext;
+
 
     public HttpRequest(Socket socket, Connector connector) throws ParseHttpRequestException {
         this.socket = socket;
+
         this.connector = connector;
+
         headers = new HashMap<>();
         parameterMap = new HashMap<>();
         parseHttpRequestContent();
         parseHttpRequestHeader();
         parseHttpRequestParameter();
+
+        if(connector instanceof HttpConnector)
+            this.servletContext = ((HttpConnector) connector).getServletContext(getRequestURI());
     }
 
     public Map<String,String> getHeaderMap(){
@@ -117,7 +125,14 @@ public class HttpRequest extends Request {
 
     @Override
     public StringBuffer getRequestURL() {
-        return null;
+        StringBuffer sb = new StringBuffer();
+        sb.append(getScheme());
+        sb.append("://");
+        sb.append(getLocalName());
+        sb.append(":");
+        sb.append(getLocalPort());
+        sb.append(getRequestURI());
+        return sb;
     }
 
     @Override
@@ -220,6 +235,12 @@ public class HttpRequest extends Request {
     @Override
     public int getServerPort() {
         return connector.getPort();
+    }
+
+
+    @Override
+    public ServletContext getServletContext() {
+        return servletContext;
     }
 
     private void parseHttpRequestContent() throws ParseHttpRequestException {

@@ -195,4 +195,11 @@ public class CommonTest {
         System.out.println(ServerContext.serverXMLPath);
     }
 
+    @Test
+    public void test16(){
+        String contextsDirectory = ServerContext.serverBasePath+ File.separator + "webapps";
+        File contexts = new File(contextsDirectory);
+        System.out.println(contexts.getName());
+    }
+
 }

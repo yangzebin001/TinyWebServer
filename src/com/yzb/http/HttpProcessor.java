@@ -16,7 +16,7 @@ public class HttpProcessor {
         try{
 
 
-
+            System.out.println(httpRequest.getRequestURL().toString());
             PrintWriter outputStream = httpResponse.getWriter();
             httpResponse.setHeader(HttpContant.HEADER_CONTENT_TYPE, HttpContant.DEFAULT_CONTENT_TYPE);
             httpResponse.setHeader(HttpContant.HEADER_SERVER,  httpRequest.getServerName());

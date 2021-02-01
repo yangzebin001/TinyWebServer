@@ -8,11 +8,11 @@ import com.yzb.exception.LifecycleException;
  * @Creater BeckoninGshy
  */
 public class StandardContainer implements Container{
-    private String name;
-    private Service service;
-    private Container parent;
+    protected String name;
+    protected Service service;
+    protected Container parent;
     private ClassLoader parentClassLoader;
-    private Container[] children = new Container[0];
+    protected Container[] children = new Container[0];
 
     @Override
     public String getName() {

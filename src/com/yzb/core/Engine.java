@@ -1,5 +1,6 @@
 package com.yzb.core;
 
+import com.yzb.common.Container;
 import com.yzb.common.StandardContainer;
 
 /**
@@ -8,13 +9,24 @@ import com.yzb.common.StandardContainer;
  * @Creater BeckoninGshy
  */
 public class Engine extends StandardContainer {
-    private String defaultHost = "localhost";
+    private String defaultHostName;
 
-    public String getDefaultHost() {
-        return defaultHost;
+    public String getDefaultHostName() {
+        return defaultHostName;
     }
 
-    public void setDefaultHost(String defaultHost) {
-        this.defaultHost = defaultHost;
+    public Host getDefaultHost(){
+        if(defaultHostName == null) return null;
+        for(Container child : children){
+            if(child instanceof Host && defaultHostName.equals(child.getName())){
+                return (Host)child;
+            }
+        }
+        return null;
+    }
+
+    public void setDefaultHostName(String defaultHostName) {
+        this.defaultHostName = defaultHostName;
+
     }
 }

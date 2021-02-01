@@ -1,6 +1,9 @@
 package com.yzb.core;
 
+import com.yzb.common.ServerContext;
 import com.yzb.common.StandardContainer;
+
+import java.io.File;
 
 /**
  * @Description
@@ -16,6 +19,8 @@ public class Host extends StandardContainer {
     }
 
     public void setAppBase(String appBase) {
-        this.appBase = appBase;
+        if(appBase.startsWith(File.separator))
+            this.appBase = ServerContext.serverBasePath + appBase;
+        else this.appBase = ServerContext.serverBasePath + File.separator + appBase;
     }
 }

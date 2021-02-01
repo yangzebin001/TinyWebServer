@@ -17,6 +17,4 @@ public class ServerContext {
 
     public static final String serverXMLPath = serverBasePath + File.separator + "conf" + File.separator + "server.xml";
 
-    public static final String webappsPath = serverBasePath + File.separator + "webapps";
-
 }

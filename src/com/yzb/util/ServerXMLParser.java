@@ -3,13 +3,19 @@ package com.yzb.util;
 import cn.hutool.core.convert.Convert;
 import cn.hutool.core.io.FileUtil;
 import com.yzb.common.*;
+import com.yzb.core.Context;
 import com.yzb.core.Engine;
 import com.yzb.core.Host;
+import com.yzb.core.ServletContext;
 import com.yzb.http.HttpConnector;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
+
+import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @Description
@@ -17,9 +23,9 @@ import org.jsoup.select.Elements;
  * @Creater BeckoninGshy
  */
 public class ServerXMLParser {
+    private static String xml = FileUtil.readUtf8String(ServerContext.serverXMLPath);
     public static Server getServer(){
         StandardServer server = StandardServer.getServerInstance();
-        String xml = FileUtil.readUtf8String(ServerContext.serverXMLPath);
         Document document = Jsoup.parse(xml);
         Element element = document.select("Server").first();
         int port = Convert.toInt(element.attr("port"));
@@ -31,7 +37,6 @@ public class ServerXMLParser {
     }
 
     public static Service[] getServices(){
-        String xml = FileUtil.readUtf8String(ServerContext.serverXMLPath);
         Document document = Jsoup.parse(xml);
         Elements elements = document.select("Service");
         StandardService[] service = new StandardService[elements.size()];
@@ -44,7 +49,6 @@ public class ServerXMLParser {
     }
 
     public static Connector[] getConnectors(String serviceName){
-        String xml = FileUtil.readUtf8String(ServerContext.serverXMLPath);
         Document document = Jsoup.parse(xml);
         Elements elements = document.select("Service");
 
@@ -79,7 +83,6 @@ public class ServerXMLParser {
         return connectors;
     }
     public static Engine getEngine(String serviceName){
-        String xml = FileUtil.readUtf8String(ServerContext.serverXMLPath);
         Document document = Jsoup.parse(xml);
         Elements elements = document.select("Service");
         StandardService[] service = new StandardService[elements.size()];
@@ -92,7 +95,7 @@ public class ServerXMLParser {
                 String defaultHost = engineEle.attr("defaultHost");
                 engine = new Engine();
                 engine.setName(engineName);
-                engine.setDefaultHost(defaultHost);
+                engine.setDefaultHostName(defaultHost);
                 break;
             }
         }
@@ -100,24 +103,48 @@ public class ServerXMLParser {
     }
 
 
-    public static Host getHost(String engineName){
-        String xml = FileUtil.readUtf8String(ServerContext.serverXMLPath);
+    public static Host[] getHost(String engineName){
         Document document = Jsoup.parse(xml);
         Elements elements = document.select("Engine");
-        Host host = null;
+        Host[] hosts = null;
         for (Element element: elements){
             String name = element.attr("name");
             if (name.equals(engineName)) {
-                Element hostEle = element.select("Host").first();
-                String hostName = hostEle.attr("name");
-                String appBase = hostEle.attr("appBase");
-                host = new Host();
-                host.setName(hostName);
-                host.setAppBase(appBase);
+                Elements hostEles = element.select("Host");
+                hosts = new Host[hostEles.size()];
+                for(int i = 0; i < hostEles.size(); i++){
+                    String hostName = hostEles.get(i).attr("name");
+                    String appBase = hostEles.get(i).attr("appBase");
+                    System.out.println(appBase);
+                    hosts[i] = new Host();
+                    hosts[i].setName(hostName);
+                    hosts[i].setAppBase(appBase);
+                }
                 break;
             }
         }
-        return host;
+        return hosts;
+    }
+
+    public static Context[] getContextsByScanDir(Host host){
+
+        String contextsDirectory = host.getAppBase();
+        File contexts = new File(contextsDirectory);
+        if(!contexts.exists() || !contexts.isDirectory()) return new Context[0];
+        File[] files = contexts.listFiles();
+        List<ServletContext> contextList = new ArrayList<>();
+        for(File file : files){
+            if(file.isDirectory()){
+                ServletContext t = new ServletContext();
+                if("ROOT".equals(file.getName())){
+                    t.setPath("/");
+                }else{
+                    t.setPath("/" + file.getName());
+                }
+                contextList.add(t);
+            }
+        }
+        return contextList.toArray(new ServletContext[0]);
     }
 
     public static Server getServerWithAutoPack(){
@@ -135,11 +162,20 @@ public class ServerXMLParser {
             engine.setService(service);
             service.setContainer(engine);
 
-            Host host = getHost(engine.getName());
-            host.setService(service);
-            host.setParent(engine);
+            Host[] hosts = getHost(engine.getName());
+            for(Host host : hosts){
+                host.setService(service);
+                host.setParent(engine);
 
-            engine.addChild(host);
+                engine.addChild(host);
+            }
+            // only parse contexts in defaulthost
+            Context[] contexts = getContextsByScanDir(engine.getDefaultHost());
+            Host defalutHost = engine.getDefaultHost();
+            for(Context context : contexts){
+                defalutHost.addChild(context);
+                context.setParent(defalutHost);
+            }
         }
 
         return server;
