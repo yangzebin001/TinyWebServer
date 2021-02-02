@@ -2,6 +2,8 @@ package com.yzb.common;
 
 import com.yzb.exception.LifecycleException;
 
+import java.io.FileNotFoundException;
+
 /**
  * @Description
  * @Date 2021/1/29 下午1:17
@@ -65,7 +67,6 @@ public class StandardContainer implements Container{
 
     @Override
     public Container findChild(String container) {
-        int len = children.length;
         for (Container value : children) {
             if (value.getName().equals(name)) return value;
         }

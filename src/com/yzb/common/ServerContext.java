@@ -15,6 +15,12 @@ public class ServerContext {
 
     public static final String serverBasePath = System.getProperty("user.dir").toString();
 
-    public static final String serverXMLPath = serverBasePath + File.separator + "conf" + File.separator + "server.xml";
+    public static final String serverConfigDir = serverBasePath + File.separator + "conf";
+
+    public static final String serverXMLPath = serverConfigDir + File.separator + "server.xml";
+
+    public static final String webXMLPath = serverConfigDir+ File.separator + "web.xml";
+
+    public static final String servletLoadClassDir = serverConfigDir+ File.separator + "servlets";
 
 }

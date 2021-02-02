@@ -1,12 +1,13 @@
 package com.yzb.core;
 
 import com.yzb.common.Container;
+import com.yzb.common.ServerContext;
 import com.yzb.common.StandardContainer;
-import com.yzb.common.StandardServletContext;
 import com.yzb.exception.LifecycleException;
 import com.yzb.http.ApplicationContext;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -39,11 +40,32 @@ public class Engine extends StandardContainer {
 
     @Override
     public void init() throws LifecycleException {
-        loadContext();
+        ApplicationContext defaultContext = null;
+        try {
+            defaultContext = loadDefaultContext();
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+            stop();
+        }
+        loadUserContext(defaultContext);
         super.init();
     }
 
-    private void loadContext(){
+    private ApplicationContext loadDefaultContext() throws FileNotFoundException {
+        String contextsDirectory = ServerContext.webXMLPath;
+        File contextFile = new File(contextsDirectory);
+        if(!contextFile.exists())
+            throw new FileNotFoundException("There is no web.xml in conf dir.");
+
+        ApplicationContext defaultContext = new ApplicationContext(ServerContext.servletLoadClassDir,true);
+        defaultContext.setPath("");
+        defaultContext.setParent(getDefaultHost());
+        getDefaultHost().addChild(defaultContext);
+        return defaultContext;
+    }
+
+
+    private void loadUserContext(ApplicationContext defaultContext){
         String contextsDirectory = getDefaultHost().getAppBase();
         File contexts = new File(contextsDirectory);
         if(!contexts.exists() || !contexts.isDirectory()) return;
@@ -51,7 +73,7 @@ public class Engine extends StandardContainer {
         List<ApplicationContext> contextList = new ArrayList<>();
         for(File file : files){
             if(file.isDirectory()){
-                ApplicationContext t = new ApplicationContext(file.getAbsolutePath());
+                ApplicationContext t = new ApplicationContext(file.getAbsolutePath(),false);
                 if("ROOT".equals(file.getName())){
                     t.setPath("/");
                 }else{
@@ -61,8 +83,10 @@ public class Engine extends StandardContainer {
             }
         }
         for(ApplicationContext servletContext : contextList){
+            servletContext.setDefaultContext(defaultContext);
             servletContext.setParent(getDefaultHost());
             getDefaultHost().addChild(servletContext);
         }
     }
+
 }

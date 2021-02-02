@@ -47,6 +47,7 @@ public class HttpRequest extends Request {
 
         if(connector instanceof HttpConnector)
             this.servletContext = ((HttpConnector) connector).getServletContext(getRequestURI());
+
     }
 
     public Map<String,String> getHeaderMap(){

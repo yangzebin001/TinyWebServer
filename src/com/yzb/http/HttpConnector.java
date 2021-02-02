@@ -1,15 +1,11 @@
 package com.yzb.http;
 
 import cn.hutool.log.LogFactory;
-import com.yzb.classcloader.WebappClassLoader;
 import com.yzb.common.*;
 import com.yzb.core.Engine;
-import com.yzb.common.StandardServletContext;
 import com.yzb.exception.LifecycleException;
 import com.yzb.exception.ParseHttpRequestException;
 
-import javax.servlet.Servlet;
-import javax.servlet.ServletException;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -23,23 +19,7 @@ public class HttpConnector extends StandardConnector implements Runnable {
 
     private Thread workThread;
 
-    // find the ServletContext that matched URI, if all ServletContext mismatched URI, default use "/" context
-    public ApplicationContext getServletContext(String URI) {
-        Service service = getService();
-        Container container = service.getContainer();
-        Container[] servletContexts = null;
-        Container defaultContext = null;
-        if(container instanceof Engine){
-            servletContexts = ((Engine) container).getDefaultHost().findChildren();
-        }
-        assert servletContexts != null;
-        for(Container servletContext : servletContexts){
-            if(! (servletContext instanceof ApplicationContext)) continue;
-            if(((ApplicationContext) servletContext).getPath().equals("/")) defaultContext = servletContext;
-            else if(URI.startsWith(((ApplicationContext) servletContext).getPath())) return (ApplicationContext) servletContext;
-        }
-        return (ApplicationContext) defaultContext;
-    }
+
 
 
     @Override
@@ -117,5 +97,44 @@ public class HttpConnector extends StandardConnector implements Runnable {
             //add connector to thread pool
             CommonThreadPool.run(runnable);
         }
+    }
+
+
+    // find the ServletContext that matched URI, if all ServletContext mismatched URI, default use "/" context
+    public ApplicationContext getServletContext(String URI) {
+        Service service = getService();
+        Container container = service.getContainer();
+        Container[] servletContexts = null;
+        Container rootContext = null;
+        if(container instanceof Engine){
+            servletContexts = ((Engine) container).getDefaultHost().findChildren();
+        }
+        assert servletContexts != null;
+        for(Container servletContext : servletContexts){
+            if(! (servletContext instanceof ApplicationContext)) continue;
+            if(((ApplicationContext) servletContext).isDefaultContext()) continue;
+            if(((ApplicationContext) servletContext).getPath().equals("/")) rootContext = servletContext;
+            else if(URI.startsWith(((ApplicationContext) servletContext).getPath())) return (ApplicationContext) servletContext;
+        }
+        return (ApplicationContext) rootContext;
+    }
+
+    public ApplicationContext getDefaultServletContext() {
+        Service service = getService();
+        Container container = service.getContainer();
+        Container[] servletContexts = null;
+        Container defaultContext = null;
+        if(container instanceof Engine){
+            servletContexts = ((Engine) container).getDefaultHost().findChildren();
+        }
+        assert servletContexts != null;
+        for(Container servletContext : servletContexts){
+            if(! (servletContext instanceof ApplicationContext)) continue;
+            if(((ApplicationContext) servletContext).isDefaultContext()) {
+                defaultContext = servletContext;
+                break;
+            }
+        }
+        return (ApplicationContext) defaultContext;
     }
 }

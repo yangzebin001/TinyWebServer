@@ -125,8 +125,11 @@ public class HttpResponse extends Response {
     @Override
     public void setCharacterEncoding(String s) {
         String contentType = headers.getOrDefault(HttpContant.HEADER_CONTENT_TYPE, HttpContant.DEFAULT_CONTENT_TYPE);
-        if(StrUtil.indexOfIgnoreCase(contentType,HttpContant.CONTENT_TYPE_SEPARATOR) == -1) return;
-        setContentType(StrUtil.subBefore(contentType,HttpContant.CONTENT_TYPE_SEPARATOR, false) + HttpContant.CONTENT_TYPE_SEPARATOR + s);
+        if(StrUtil.indexOfIgnoreCase(contentType,HttpContant.CONTENT_TYPE_SEPARATOR) == -1) {
+            setContentType(contentType +"; " + HttpContant.CONTENT_TYPE_SEPARATOR + s);
+        } else {
+            setContentType(StrUtil.subBefore(contentType,HttpContant.CONTENT_TYPE_SEPARATOR, false) + HttpContant.CONTENT_TYPE_SEPARATOR + s);
+        }
     }
 
     @Override

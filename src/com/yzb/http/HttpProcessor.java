@@ -20,18 +20,8 @@ public class HttpProcessor {
         try{
 
             ApplicationContext appContext = (ApplicationContext) request.getServletContext();
-            WebappClassLoader webappClassLoader = appContext.getWebappClassLoader();
-            String servletURL = request.getRequestURI().substring(appContext.getPath().length());
 
-            if(servletURL.startsWith("/") && appContext.getServletURLToClass(servletURL) != null){
-                Class<?> clazz = webappClassLoader.loadClass(appContext.getServletURLToClass(servletURL));
-                Servlet servlet = appContext.getServlet(clazz);
-                servlet.service(request,response);
-            }else{
-                PrintWriter writer = response.getWriter();
-                writer.print("this is common page.");
-                writer.close();
-            }
+            new Dispatcher().dispatch(request.getRequestURI(),appContext, request, response);
 
 
         }  catch (Exception e) {
