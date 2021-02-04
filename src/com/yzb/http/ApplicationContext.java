@@ -1,6 +1,7 @@
 package com.yzb.http;
 
 import cn.hutool.core.io.FileUtil;
+import cn.hutool.log.Log;
 import cn.hutool.log.LogFactory;
 import com.yzb.classcloader.WebappClassLoader;
 import com.yzb.common.ServerContext;
@@ -33,6 +34,7 @@ public class ApplicationContext extends StandardServletContext {
     private Map<String,String> mimeMapping        = new HashMap<>();
     private Map<String,String> initParameters     = new HashMap<>();
     private Map<String,Map<String,String>> servletClassToInitParameters = new HashMap<>();
+    private List<String> loadOnStartupServletClassNames = new LinkedList<>();
     private WebappClassLoader  webappClassLoader;
     private boolean isDefault = false;
     private ApplicationContext defaultContext = null;
@@ -62,10 +64,6 @@ public class ApplicationContext extends StandardServletContext {
         return mimeMapping.get(extension);
     }
 
-    public Set<String> getMimeTypesSet(){
-        return mimeMapping.keySet();
-    }
-
     @Override
     public String getContextPath() {
         return getPath();
@@ -74,76 +72,25 @@ public class ApplicationContext extends StandardServletContext {
     @Override
     public void init() throws LifecycleException {
         try {
-            parseServlets();
-            parseMimeAndMapping();
+            File webInf = null;
+            if(isDefault){
+                webInf = new File(ServerContext.serverConfigDir);
+            }else{
+                webInf = new File(getRealPath(), "WEB-INF");
+                if(!webInf.exists()) throw new FileNotFoundException("cannot find WEB-INF dir in current application directory");
+            }
+            File webXML = new File(webInf,  "web.xml");
+            String xml = FileUtil.readUtf8String(webXML);
+            Document document = Jsoup.parse(xml);
+            parseServlets(document);
+            parseMimeAndMapping(document);
+            parseLoadOnStartupServlet(document);
+            handleLoadOnStartupServlet();
         } catch (FileNotFoundException e) {
-            e.printStackTrace();
+            LogFactory.get().error(e.getMessage());
             stop();
         }
         super.init();
-    }
-
-    private void parseServlets() throws FileNotFoundException {
-        File webInf = null;
-        if(isDefault){
-            webInf = new File(ServerContext.serverConfigDir);
-        }else{
-            webInf = new File(getRealPath(), "WEB-INF");
-            if(!webInf.exists()) throw new FileNotFoundException("cannot find WEB-INF dir in current application directory");
-        }
-        File webXML = new File(webInf,  "web.xml");
-        String xml = FileUtil.readUtf8String(webXML);
-        Document document = Jsoup.parse(xml);
-        Elements servlets = document.select("servlet");
-        for(Element servlet : servlets){
-            String name = servlet.select("servlet-name").text();
-            String clazz = servlet.select("servlet-class").text();
-            assert name != null;
-            assert clazz != null;
-            servletNameToClass.put(name, clazz);
-            servletClassToName.put(clazz, name);
-
-            // process init-param
-            Elements initParams = servlet.select("init-param");
-            if(initParams == null || initParams.size() == 0) continue;
-            Map<String,String> inits = new HashMap<>();
-            for(Element initParam : initParams){
-                String initParamValue = initParam.select("param-value").text();
-                String initParamName = initParam.select("param-name").text();
-                inits.put(initParamName,initParamValue);
-            }
-            servletClassToInitParameters.put(clazz, inits);
-        }
-
-        Elements servletMappings = document.select("servlet-mapping");
-        for(Element servlet : servletMappings){
-            String name = servlet.select("servlet-name").text();
-            String url = servlet.select("url-pattern").text();
-            assert name != null;
-            assert url != null;
-            servletNameToURL.put(name, url);
-            servletURLToName.put(url, name);
-        }
-    }
-
-    private void parseMimeAndMapping() throws FileNotFoundException {
-        File webInf = null;
-        if(isDefault){
-            webInf = new File(ServerContext.serverConfigDir);
-        }else{
-            webInf = new File(getRealPath(), "WEB-INF");
-            if(!webInf.exists()) throw new FileNotFoundException("cannot find WEB-INF dir in current application directory");
-        }
-        File webXML = new File(webInf,  "web.xml");
-        String xml = FileUtil.readUtf8String(webXML);
-        Document document = Jsoup.parse(xml);
-        Elements mimeMappings = document.select("mime-mapping");
-        for(Element mime : mimeMappings){
-            String extension = mime.select("extension").text();
-            String mimeType = mime.select("mime-type").text();
-            mimeMapping.put(extension, mimeType);
-        }
-
     }
 
     public String getServletURLToClass(String url) {
@@ -183,7 +130,6 @@ public class ApplicationContext extends StandardServletContext {
         return defaultContext;
     }
 
-
     @Override
     public String getInitParameter(String s) {
         return initParameters.get(s);
@@ -200,4 +146,66 @@ public class ApplicationContext extends StandardServletContext {
         return true;
     }
 
+
+    private void parseServlets(Document document) throws FileNotFoundException {
+
+        Elements servlets = document.select("servlet");
+        for(Element servlet : servlets){
+            String name = servlet.select("servlet-name").text();
+            String clazz = servlet.select("servlet-class").text();
+            assert name != null;
+            assert clazz != null;
+            servletNameToClass.put(name, clazz);
+            servletClassToName.put(clazz, name);
+
+            // process init-param
+            Elements initParams = servlet.select("init-param");
+            if(initParams == null || initParams.size() == 0) continue;
+            Map<String,String> inits = new HashMap<>();
+            for(Element initParam : initParams){
+                String initParamValue = initParam.select("param-value").text();
+                String initParamName = initParam.select("param-name").text();
+                inits.put(initParamName,initParamValue);
+            }
+            servletClassToInitParameters.put(clazz, inits);
+        }
+
+        Elements servletMappings = document.select("servlet-mapping");
+        for(Element servlet : servletMappings){
+            String name = servlet.select("servlet-name").text();
+            String url = servlet.select("url-pattern").text();
+            assert name != null;
+            assert url != null;
+            servletNameToURL.put(name, url);
+            servletURLToName.put(url, name);
+        }
+    }
+
+    private void parseMimeAndMapping(Document document) throws FileNotFoundException {
+        Elements mimeMappings = document.select("mime-mapping");
+        for(Element mime : mimeMappings){
+            String extension = mime.select("extension").text();
+            String mimeType = mime.select("mime-type").text();
+            mimeMapping.put(extension, mimeType);
+        }
+
+    }
+
+    private void parseLoadOnStartupServlet(Document document){
+        Elements loadOnStartups = document.select("load-on-startup");
+        for (Element loadOnStartup : loadOnStartups){
+            Elements servletName = loadOnStartup.parent().select("servlet-name");
+            loadOnStartupServletClassNames.add(servletName.text());
+        }
+    }
+
+    private void handleLoadOnStartupServlet(){
+        for(String name: loadOnStartupServletClassNames){
+            try {
+                getServlet(name);
+            } catch (ServletException e) {
+                LogFactory.get().error("get servlet {} failed at load on startup", name);
+            }
+        }
+    }
 }

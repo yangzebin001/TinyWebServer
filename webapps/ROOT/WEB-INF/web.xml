@@ -11,6 +11,7 @@
             <param-name>password</param-name>
             <param-value>123</param-value>
         </init-param>
+        <load-on-startup>1</load-on-startup>
     </servlet>
 
     <servlet-mapping>
