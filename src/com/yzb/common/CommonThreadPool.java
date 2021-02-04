@@ -14,4 +14,9 @@ public class CommonThreadPool {
     public static void run(Runnable runnable){
         tpe.execute(runnable);
     }
+
+    public static void shutdown() {
+        tpe.shutdown();
+        while(!tpe.isShutdown());
+    }
 }

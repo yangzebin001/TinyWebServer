@@ -1,5 +1,6 @@
-package com.yzb.common;
+package com.yzb.core;
 
+import com.yzb.common.*;
 import com.yzb.exception.LifecycleException;
 
 import java.net.ServerSocket;
@@ -11,7 +12,7 @@ import java.util.Map;
  * @Date 2021/1/29 下午1:17
  * @Creater BeckoninGshy
  */
-public class StandardConnector implements Connector{
+public class StandardConnector implements Connector {
 
     protected String name;
     protected Map<String,String> properties;

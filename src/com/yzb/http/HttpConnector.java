@@ -3,6 +3,7 @@ package com.yzb.http;
 import cn.hutool.log.LogFactory;
 import com.yzb.common.*;
 import com.yzb.core.Engine;
+import com.yzb.core.StandardConnector;
 import com.yzb.exception.LifecycleException;
 import com.yzb.exception.ParseHttpRequestException;
 
@@ -54,6 +55,7 @@ public class HttpConnector extends StandardConnector implements Runnable {
     @Override
     public void destroy() throws LifecycleException {
         super.destroy();
+        CommonThreadPool.shutdown();
     }
 
     @Override

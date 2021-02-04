@@ -2,8 +2,8 @@ package com.yzb;
 
 import cn.hutool.core.util.RandomUtil;
 import com.yzb.common.Service;
-import com.yzb.common.StandardServer;
-import com.yzb.common.StandardService;
+import com.yzb.core.StandardServer;
+import com.yzb.core.StandardService;
 import org.junit.*;
 
 /**

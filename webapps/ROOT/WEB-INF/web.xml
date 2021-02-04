@@ -3,6 +3,14 @@
     <servlet>
         <servlet-name>HelloServlet</servlet-name>
         <servlet-class>com.yzb.servlets.HelloServlet</servlet-class>
+        <init-param>
+            <param-name>username</param-name>
+            <param-value>zhangsan</param-value>
+        </init-param>
+        <init-param>
+            <param-name>password</param-name>
+            <param-value>123</param-value>
+        </init-param>
     </servlet>
 
     <servlet-mapping>

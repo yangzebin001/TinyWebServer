@@ -1,9 +1,11 @@
 package com.yzb.http;
 
 import cn.hutool.core.io.FileUtil;
+import cn.hutool.log.LogFactory;
 import com.yzb.classcloader.WebappClassLoader;
 import com.yzb.common.ServerContext;
-import com.yzb.common.StandardServletContext;
+import com.yzb.core.StandardServletConfig;
+import com.yzb.core.StandardServletContext;
 import com.yzb.exception.LifecycleException;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -11,12 +13,11 @@ import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
 import javax.servlet.Servlet;
+import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 /**
  * @Description
@@ -30,6 +31,8 @@ public class ApplicationContext extends StandardServletContext {
     private Map<String,String> servletNameToURL   = new HashMap<>();
     private Map<String,String> servletURLToName   = new HashMap<>();
     private Map<String,String> mimeMapping        = new HashMap<>();
+    private Map<String,String> initParameters     = new HashMap<>();
+    private Map<String,Map<String,String>> servletClassToInitParameters = new HashMap<>();
     private WebappClassLoader  webappClassLoader;
     private boolean isDefault = false;
     private ApplicationContext defaultContext = null;
@@ -95,14 +98,29 @@ public class ApplicationContext extends StandardServletContext {
         for(Element servlet : servlets){
             String name = servlet.select("servlet-name").text();
             String clazz = servlet.select("servlet-class").text();
+            assert name != null;
+            assert clazz != null;
             servletNameToClass.put(name, clazz);
             servletClassToName.put(clazz, name);
+
+            // process init-param
+            Elements initParams = servlet.select("init-param");
+            if(initParams == null || initParams.size() == 0) continue;
+            Map<String,String> inits = new HashMap<>();
+            for(Element initParam : initParams){
+                String initParamValue = initParam.select("param-value").text();
+                String initParamName = initParam.select("param-name").text();
+                inits.put(initParamName,initParamValue);
+            }
+            servletClassToInitParameters.put(clazz, inits);
         }
 
         Elements servletMappings = document.select("servlet-mapping");
         for(Element servlet : servletMappings){
             String name = servlet.select("servlet-name").text();
             String url = servlet.select("url-pattern").text();
+            assert name != null;
+            assert url != null;
             servletNameToURL.put(name, url);
             servletURLToName.put(url, name);
         }
@@ -132,13 +150,25 @@ public class ApplicationContext extends StandardServletContext {
         return getServletNameToClass(getServletURLToName(url));
     }
 
-    @Override
-    public Servlet getServlet(String s) throws ServletException {
-        return super.getServlet(s);
+    public String getServletClassToName(Class<?> clazz){
+        return servletClassToName.get(clazz.getName());
     }
 
-    public Servlet getServlet(Class<?> clazz) throws ServletException, IllegalAccessException, InstantiationException {
-        return (Servlet) clazz.newInstance();
+    @Override
+    public Servlet getServlet(String s) throws ServletException {
+        try {
+            return getServlet(webappClassLoader.loadClass(getServletNameToClass(s)));
+        } catch (IllegalAccessException | InstantiationException | ClassNotFoundException e) {
+            LogFactory.get().error("get servlet {} failed!", s);
+        }
+        return null;
+    }
+
+    public synchronized Servlet getServlet(Class<?> clazz) throws ServletException, IllegalAccessException, InstantiationException {
+        Servlet s = (Servlet) clazz.newInstance();
+        ServletConfig sc = new StandardServletConfig(this, getServletClassToName(clazz), servletClassToInitParameters.get(clazz.getName()));
+        s.init(sc);
+        return s;
     }
 
     public boolean isDefaultContext(){
@@ -151,6 +181,23 @@ public class ApplicationContext extends StandardServletContext {
 
     public ApplicationContext getDefaultContext(){
         return defaultContext;
+    }
+
+
+    @Override
+    public String getInitParameter(String s) {
+        return initParameters.get(s);
+    }
+
+    @Override
+    public Enumeration<String> getInitParameterNames() {
+        return Collections.enumeration(initParameters.keySet());
+    }
+
+    @Override
+    public boolean setInitParameter(String key, String value) {
+        initParameters.put(key, value);
+        return true;
     }
 
 }
