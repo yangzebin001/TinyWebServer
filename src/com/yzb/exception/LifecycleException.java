@@ -6,4 +6,11 @@ package com.yzb.exception;
  * @Creater BeckoninGshy
  */
 public class LifecycleException extends Exception {
+
+    public LifecycleException() {
+    }
+
+    public LifecycleException(String message) {
+        super(message);
+    }
 }

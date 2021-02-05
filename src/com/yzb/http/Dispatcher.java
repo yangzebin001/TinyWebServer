@@ -2,6 +2,7 @@ package com.yzb.http;
 
 import cn.hutool.core.util.StrUtil;
 import com.yzb.classcloader.WebappClassLoader;
+import com.yzb.exception.URLMismatchedExpection;
 
 import javax.servlet.Servlet;
 import javax.servlet.ServletException;
@@ -14,7 +15,7 @@ import java.io.*;
  * @Creater BeckoninGshy
  */
 public class Dispatcher {
-    public void dispatch(String url, ApplicationContext appContext, HttpRequest req, HttpResponse resp) throws ClassNotFoundException, IOException, ServletException, IllegalAccessException, InstantiationException {
+    public void dispatch(String url, ApplicationContext appContext, HttpRequest req, HttpResponse resp) throws ClassNotFoundException, IOException, ServletException, IllegalAccessException, InstantiationException, URLMismatchedExpection, Exception {
 
         // Reduce context path
         if(!appContext.getPath().equals("/"))
@@ -60,10 +61,8 @@ public class Dispatcher {
                     if(type.startsWith("text")) {
                         resp.setCharacterEncoding("utf-8");
                     }
+
                     handleWriteFile(is, resp);
-
-
-
                     return;
                 }
             }
@@ -71,9 +70,7 @@ public class Dispatcher {
         }
 
         // is mismatched.
-        PrintWriter writer = resp.getWriter();
-        writer.print("this is mismatched page.");
-        writer.close();
+        throw new URLMismatchedExpection(url);
     }
 
 

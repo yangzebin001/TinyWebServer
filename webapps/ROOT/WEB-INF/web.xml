@@ -26,6 +26,6 @@
 
     <servlet-mapping>
         <servlet-name>HelloServlet2</servlet-name>
-        <url-pattern>/hello2</url-pattern>
+        <url-pattern>/hello2.do</url-pattern>
     </servlet-mapping>
 </web-app>

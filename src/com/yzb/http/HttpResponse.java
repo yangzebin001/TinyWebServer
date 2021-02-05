@@ -244,14 +244,28 @@ public class HttpResponse extends Response {
     }
 
 
+    @Override
+    public void sendError(int code, String s) throws IOException {
+        if(isCommitted()) throw new IllegalStateException("can not send error, because it has been commited!");
+        setStatus(code);
+        setContentType(HttpContant.DEFAULT_CONTENT_TYPE);
+        PrintWriter writer = getWriter();
+        writer.println(s);
+        writer.close();
+    }
+
+    @Override
+    public void sendError(int code) throws IOException {
+        sendError(code, StrUtil.format(HttpContant.textFormat_normal, code));
+    }
+
+
     private String generateResponseHeader(){
-        StringBuilder sb = new StringBuilder(128);
+        StringBuilder sb = new StringBuilder(64);
         sb.append(HttpContant.DEFAULT_PROTOCOL);
         sb.append(" ");
         sb.append(getStatus());
-        if(getStatus() == HttpContant.RESPONSE_SC_OK){
-            sb.append(" OK");
-        }
+        sb.append(HttpContant.getResponseHead(getStatus()));
         sb.append(HttpContant.LINE_TERMINATOR);
         for (Map.Entry<String,String> entry : headers.entrySet()){
             sb.append(entry.getKey());

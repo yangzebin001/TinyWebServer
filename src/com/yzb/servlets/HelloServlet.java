@@ -33,6 +33,7 @@ public class HelloServlet extends HttpServlet {
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+//        int i = 1/0;
         PrintWriter writer = resp.getWriter();
         writer.println("this is HelloSerlvet response");
         writer.close();
