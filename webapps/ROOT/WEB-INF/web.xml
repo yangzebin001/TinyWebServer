@@ -14,8 +14,14 @@
         <load-on-startup>1</load-on-startup>
     </servlet>
 
+    <servlet>
+        <servlet-name>HelloServlet2</servlet-name>
+        <servlet-class>com.yzb.servlets.HelloServlet2</servlet-class>
+    </servlet>
+
+
     <servlet-mapping>
-        <servlet-name>HelloServlet</servlet-name>
-        <url-pattern>/hello</url-pattern>
+        <servlet-name>HelloServlet2</servlet-name>
+        <url-pattern>/hello2</url-pattern>
     </servlet-mapping>
 </web-app>

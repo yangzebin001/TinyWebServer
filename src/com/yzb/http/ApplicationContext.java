@@ -35,6 +35,7 @@ public class ApplicationContext extends StandardServletContext {
     private Map<String,String> initParameters     = new HashMap<>();
     private Map<String,Map<String,String>> servletClassToInitParameters = new HashMap<>();
     private List<String> loadOnStartupServletClassNames = new LinkedList<>();
+    private Map<Class<?>, Servlet>  servletPool = new HashMap<>();
     private WebappClassLoader  webappClassLoader;
     private boolean isDefault = false;
     private ApplicationContext defaultContext = null;
@@ -89,8 +90,17 @@ public class ApplicationContext extends StandardServletContext {
         } catch (FileNotFoundException e) {
             LogFactory.get().error(e.getMessage());
             stop();
+            return;
         }
         super.init();
+    }
+
+    @Override
+    public void destroy() throws LifecycleException {
+        for(Servlet s : servletPool.values()){
+            s.destroy();
+        }
+        super.destroy();
     }
 
     public String getServletURLToClass(String url) {
@@ -112,9 +122,13 @@ public class ApplicationContext extends StandardServletContext {
     }
 
     public synchronized Servlet getServlet(Class<?> clazz) throws ServletException, IllegalAccessException, InstantiationException {
-        Servlet s = (Servlet) clazz.newInstance();
-        ServletConfig sc = new StandardServletConfig(this, getServletClassToName(clazz), servletClassToInitParameters.get(clazz.getName()));
-        s.init(sc);
+        Servlet s = servletPool.get(clazz);
+        if(s == null){
+            s = (Servlet) clazz.newInstance();
+            ServletConfig sc = new StandardServletConfig(this, getServletClassToName(clazz), servletClassToInitParameters.getOrDefault(clazz.getName(), new HashMap<>()));
+            s.init(sc);
+            servletPool.put(clazz, s);
+        }
         return s;
     }
 

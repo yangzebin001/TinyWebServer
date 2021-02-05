@@ -29,10 +29,12 @@ public class HttpProcessor {
             e.printStackTrace();
         } finally {
             try {
+                if(!response.isCommitted()){
+                    response.getOutputStream().flush();
+                }
                 if(!socket.isClosed())
                     socket.close();
             } catch (IOException e) {
-                //send 500
                 e.printStackTrace();
             }
         }
