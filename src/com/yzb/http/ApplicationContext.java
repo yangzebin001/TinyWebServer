@@ -4,7 +4,10 @@ import cn.hutool.core.io.FileUtil;
 import cn.hutool.log.Log;
 import cn.hutool.log.LogFactory;
 import com.yzb.classcloader.WebappClassLoader;
+import com.yzb.common.Container;
 import com.yzb.common.ServerContext;
+import com.yzb.common.Service;
+import com.yzb.core.Engine;
 import com.yzb.core.StandardServletConfig;
 import com.yzb.core.StandardServletContext;
 import com.yzb.exception.LifecycleException;
@@ -15,9 +18,12 @@ import org.jsoup.select.Elements;
 
 import javax.servlet.Servlet;
 import javax.servlet.ServletConfig;
+import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.InputStream;
 import java.util.*;
 
 /**
@@ -61,13 +67,52 @@ public class ApplicationContext extends StandardServletContext {
     }
 
     @Override
+    public ServletContext getContext(String URI) {
+        Service service = getService();
+        Container container = service.getContainer();
+        Container[] servletContexts = null;
+        Container rootContext = null;
+        if(container instanceof Engine){
+            servletContexts = ((Engine) container).getDefaultHost().findChildren();
+        }
+        assert servletContexts != null;
+        for(Container servletContext : servletContexts){
+            if(! (servletContext instanceof ApplicationContext)) continue;
+            if(((ApplicationContext) servletContext).isDefaultContext()) continue;
+            if(((ApplicationContext) servletContext).getPath().equals("/")) rootContext = servletContext;
+            else if(URI.startsWith(((ApplicationContext) servletContext).getPath())) return (ApplicationContext) servletContext;
+        }
+        return (ApplicationContext) rootContext;
+    }
+
+    @Override
     public String getMimeType(String extension){
+        if(mimeMapping.get(extension) == null) return getDefaultContext().getMimeType(extension);
         return mimeMapping.get(extension);
     }
 
     @Override
     public String getContextPath() {
         return getPath();
+    }
+
+    @Override
+    public InputStream getResourceAsStream(String path) {
+        String filePath = getRealPath() + path;
+        File file = new File(filePath);
+        InputStream is;
+        try {
+            is = new FileInputStream(file);
+        } catch (FileNotFoundException e) {
+            LogFactory.get().warn("get Resource failed, file is not found. path: {} ", path);
+            return null;
+        }
+        return is;
+    }
+
+    @Override
+    public String getServletContextName() {
+        return getName();
     }
 
     @Override

@@ -19,6 +19,10 @@
         <servlet-class>com.yzb.servlets.HelloServlet2</servlet-class>
     </servlet>
 
+    <servlet-mapping>
+        <servlet-name>HelloServlet</servlet-name>
+        <url-pattern>/hello</url-pattern>
+    </servlet-mapping>
 
     <servlet-mapping>
         <servlet-name>HelloServlet2</servlet-name>

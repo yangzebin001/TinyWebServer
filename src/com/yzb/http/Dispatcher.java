@@ -6,10 +6,7 @@ import com.yzb.classcloader.WebappClassLoader;
 import javax.servlet.Servlet;
 import javax.servlet.ServletException;
 import javax.servlet.ServletOutputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.PrintWriter;
+import java.io.*;
 
 /**
  * @Description Parse the url and pass it to the appropriate component, such as a servlet or file
@@ -29,27 +26,17 @@ public class Dispatcher {
 
         // is servlet url
         if(url.startsWith("/")){
-            // app context
-
-            if(appContext.getServletURLToClass(url) != null) {
-
-                WebappClassLoader webappClassLoader = appContext.getWebappClassLoader();
-                Class<?> clazz = webappClassLoader.loadClass(appContext.getServletURLToClass(url));
-                //get instance servlet from context
-                Servlet servlet = appContext.getServlet(clazz);
-                //execute service method (auto call method like doGet,doPost etc)process request
-                servlet.service(req,resp);
-                return;
+            // app context --> default context
+            ApplicationContext curContext = appContext;
+            if(appContext.getServletURLToClass(url) == null) {
+                curContext = curContext.getDefaultContext();
             }
 
-            // defalut context
-            ApplicationContext defaultContext = appContext.getDefaultContext();
-            if(defaultContext.getServletURLToClass(url) != null) {
-
-                WebappClassLoader webappClassLoader = defaultContext.getWebappClassLoader();
-                Class<?> clazz = webappClassLoader.loadClass(defaultContext.getServletURLToClass(url));
+            if(curContext.getServletURLToClass(url) != null) {
+                WebappClassLoader webappClassLoader = curContext.getWebappClassLoader();
+                Class<?> clazz = webappClassLoader.loadClass(curContext.getServletURLToClass(url));
                 //get instance servlet from context
-                Servlet servlet = defaultContext.getServlet(clazz);
+                Servlet servlet = curContext.getServlet(clazz);
                 //execute service method (auto call method like doGet,doPost etc)process request
                 servlet.service(req,resp);
                 return;
@@ -59,30 +46,26 @@ public class Dispatcher {
         if (StrUtil.contains(url, '.')){
             String ext = StrUtil.subAfter(url, '.', false);
             String type = appContext.getMimeType(ext);
-            if(type == null) type = appContext.getDefaultContext().getMimeType(ext);
             if(type != null) {
-                String filePath = appContext.getRealPath() + url;
-                File file = new File(filePath);
-                if(file.exists()){
-
-
+                //get resource succeeded.
+                InputStream is = appContext.getResourceAsStream(url);
+                if(is != null){
                     resp.setContentType(type);
                     //default charset: utf-8
-                    if(type.startsWith("text"))
+                    if(type.startsWith("text")) {
                         resp.setCharacterEncoding("utf-8");
-
-                    FileInputStream fileInputStream = new FileInputStream(file);
+                    }
                     ServletOutputStream outputStream = resp.getOutputStream();
+
                     byte[] buffer = new byte[1024];
                     int len = 0;
-                    while((len = fileInputStream.read(buffer,0,buffer.length)) != -1){
+                    while((len = is.read(buffer,0,buffer.length)) != -1){
                         outputStream.write(buffer,0,len);
                     }
                     outputStream.close();
 
                     return;
                 }
-
             }
 
         }
@@ -92,4 +75,6 @@ public class Dispatcher {
         writer.print("this is mismatched page.");
         writer.close();
     }
+
+
 }

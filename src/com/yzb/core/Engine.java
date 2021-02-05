@@ -78,6 +78,7 @@ public class Engine extends StandardContainer {
                 }else{
                     t.setPath("/" + file.getName());
                 }
+                t.setName(file.getName());
                 contextList.add(t);
             }
         }
