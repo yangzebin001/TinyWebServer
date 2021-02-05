@@ -41,6 +41,7 @@ public class ApplicationContext extends StandardServletContext {
     private Map<String,String> initParameters     = new HashMap<>();
     private Map<String,Map<String,String>> servletClassToInitParameters = new HashMap<>();
     private List<String> loadOnStartupServletClassNames = new LinkedList<>();
+    private List<String> welcomeFileNames = new LinkedList<>();
     private Map<Class<?>, Servlet>  servletPool = new HashMap<>();
     private WebappClassLoader  webappClassLoader;
     private boolean isDefault = false;
@@ -125,12 +126,16 @@ public class ApplicationContext extends StandardServletContext {
                 webInf = new File(getRealPath(), "WEB-INF");
                 if(!webInf.exists()) throw new FileNotFoundException("cannot find WEB-INF dir in current application directory");
             }
+
             File webXML = new File(webInf,  "web.xml");
             String xml = FileUtil.readUtf8String(webXML);
             Document document = Jsoup.parse(xml);
+
             parseServlets(document);
             parseMimeAndMapping(document);
             parseLoadOnStartupServlet(document);
+            parseWelcomeFileList(document);
+
             handleLoadOnStartupServlet();
         } catch (FileNotFoundException e) {
             LogFactory.get().error(e.getMessage());
@@ -205,6 +210,24 @@ public class ApplicationContext extends StandardServletContext {
         return true;
     }
 
+    public List<String> getWelcomeFileNames(){
+        return welcomeFileNames;
+    }
+
+    public InputStream getWelcomFile(){
+        for(String name: welcomeFileNames){
+            InputStream is = getResourceAsStream("/" + name);
+            if(is != null) return is;
+        }
+        if(!isDefault) {
+            for(String name: getDefaultContext().getWelcomeFileNames()){
+                InputStream is = getResourceAsStream("/" + name);
+                if(is != null) return is;
+            }
+        }
+        return null;
+    }
+
 
     private void parseServlets(Document document) throws FileNotFoundException {
 
@@ -255,6 +278,13 @@ public class ApplicationContext extends StandardServletContext {
         for (Element loadOnStartup : loadOnStartups){
             Elements servletName = loadOnStartup.parent().select("servlet-name");
             loadOnStartupServletClassNames.add(servletName.text());
+        }
+    }
+
+    private void parseWelcomeFileList(Document document){
+        Elements welcomeFiles = document.select("welcome-file-list welcome-file");
+        for (Element welcomeFile : welcomeFiles){
+            welcomeFileNames.add(welcomeFile.text());
         }
     }
 

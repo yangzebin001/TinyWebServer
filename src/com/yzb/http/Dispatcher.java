@@ -20,8 +20,13 @@ public class Dispatcher {
         if(!appContext.getPath().equals("/"))
             url = url.substring(appContext.getPath().length());
 
+        // is app root url, match welcome-file-list config;
         if(url.length() == 0 || url.equals("/")){ // like "/test" "/test/" --> "" test is an app dir
-            System.out.println("is app root url");
+            InputStream is = appContext.getWelcomFile();
+            if(is != null){
+                handleWriteFile(is, resp);
+                return;
+            }
         }
 
         // is servlet url
@@ -55,14 +60,9 @@ public class Dispatcher {
                     if(type.startsWith("text")) {
                         resp.setCharacterEncoding("utf-8");
                     }
-                    ServletOutputStream outputStream = resp.getOutputStream();
+                    handleWriteFile(is, resp);
 
-                    byte[] buffer = new byte[1024];
-                    int len = 0;
-                    while((len = is.read(buffer,0,buffer.length)) != -1){
-                        outputStream.write(buffer,0,len);
-                    }
-                    outputStream.close();
+
 
                     return;
                 }
@@ -77,4 +77,13 @@ public class Dispatcher {
     }
 
 
+    private void handleWriteFile(InputStream is, HttpResponse resp) throws IOException {
+        ServletOutputStream outputStream = resp.getOutputStream();
+        byte[] buffer = new byte[1024];
+        int len = 0;
+        while((len = is.read(buffer,0,buffer.length)) != -1){
+            outputStream.write(buffer,0,len);
+        }
+        outputStream.close();
+    }
 }
