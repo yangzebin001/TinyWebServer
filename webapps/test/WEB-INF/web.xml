@@ -4,9 +4,25 @@
         <servlet-name>TestServlet</servlet-name>
         <servlet-class>com.yzb.servlets.TestServlet</servlet-class>
     </servlet>
+    <servlet>
+        <servlet-name>TestServlet2</servlet-name>
+        <servlet-class>com.yzb.servlets.TestServlet2</servlet-class>
+    </servlet>
+    <servlet>
+        <servlet-name>TestServlet3</servlet-name>
+        <servlet-class>com.yzb.servlets.TestServlet3</servlet-class>
+    </servlet>
 
     <servlet-mapping>
         <servlet-name>TestServlet</servlet-name>
         <url-pattern>/test1</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>TestServlet2</servlet-name>
+        <url-pattern>/test2</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>TestServlet3</servlet-name>
+        <url-pattern>/test3</url-pattern>
     </servlet-mapping>
 </web-app>

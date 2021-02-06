@@ -60,6 +60,7 @@ public class Engine extends StandardContainer {
         defaultContext.setPath("");
         defaultContext.setParent(getDefaultHost());
         getDefaultHost().addChild(defaultContext);
+        defaultContext.setService(getService());
         return defaultContext;
     }
 
@@ -86,6 +87,7 @@ public class Engine extends StandardContainer {
             servletContext.setDefaultContext(defaultContext);
             servletContext.setParent(getDefaultHost());
             getDefaultHost().addChild(servletContext);
+            servletContext.setService(getService());
         }
     }
 

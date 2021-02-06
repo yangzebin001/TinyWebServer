@@ -21,16 +21,14 @@ public class HttpProcessor {
 
     public void execute(Socket socket, HttpRequest request, HttpResponse response){
         try{
+            LogFactory.get().info("receiving from {}, request: {}", request.getRemoteAddr(), request.getRequestURI());
 
             ApplicationContext appContext = (ApplicationContext) request.getServletContext();
-
-            new Dispatcher().dispatch(request.getRequestURI(),appContext, request, response);
-
+            new Dispatcher().dispatch(request.getRequestURI(), appContext, request, response);
 
         }  catch (URLMismatchedExpection e) {
             //404
             handle404(request.getRequestURI(), response, e.getMessage());
-
         } catch (Exception e) {
             //500
             handle500(request.getRequestURI(), response, e.getMessage());
@@ -39,11 +37,8 @@ public class HttpProcessor {
                 if(!socket.isClosed())
                     socket.close();
             } catch (IOException e) {
-                e.printStackTrace();
             }
         }
-
-
     }
 
     private void handle404(String url, HttpResponse resp, String message) {

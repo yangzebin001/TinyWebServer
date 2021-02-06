@@ -15,17 +15,18 @@ import java.io.*;
  * @Creater BeckoninGshy
  */
 public class Dispatcher {
-    public void dispatch(String url, ApplicationContext appContext, HttpRequest req, HttpResponse resp) throws ClassNotFoundException, IOException, ServletException, IllegalAccessException, InstantiationException, URLMismatchedExpection, Exception {
 
+
+    public void dispatch(String url, ApplicationContext appContext, HttpRequest req, HttpResponse resp) throws ClassNotFoundException, IOException, ServletException, IllegalAccessException, InstantiationException, URLMismatchedExpection {
         // Reduce context path
         if(!appContext.getPath().equals("/"))
             url = url.substring(appContext.getPath().length());
 
         // is app root url, match welcome-file-list config;
-        if(url.length() == 0 || url.equals("/")){ // like "/test" "/test/" --> "" test is an app dir
+        if(url.length() == 0 || url.equals("/")){ // like "/test" or "/test/" --> "" test is an app dir
             InputStream is = appContext.getWelcomFile();
             if(is != null){
-                handleWriteFile(is, resp);
+                writeFileToResponse(is, resp);
                 return;
             }
         }
@@ -52,29 +53,24 @@ public class Dispatcher {
         if (StrUtil.contains(url, '.')){
             String ext = StrUtil.subAfter(url, '.', false);
             String type = appContext.getMimeType(ext);
-            if(type != null) {
-                //get resource succeeded.
-                InputStream is = appContext.getResourceAsStream(url);
-                if(is != null){
-                    resp.setContentType(type);
-                    //default charset: utf-8
-                    if(type.startsWith("text")) {
-                        resp.setCharacterEncoding("utf-8");
-                    }
-
-                    handleWriteFile(is, resp);
-                    return;
+            InputStream is = appContext.getResourceAsStream(url);
+            if(type != null && is != null) {
+                //get resource succeeded and server can handle this mimetype
+                resp.setContentType(type);
+                //default charset: utf-8
+                if(type.startsWith("text")) {
+                    resp.setCharacterEncoding("utf-8");
                 }
+                writeFileToResponse(is, resp);
+                return;
             }
-
         }
-
         // is mismatched.
         throw new URLMismatchedExpection(url);
     }
 
 
-    private void handleWriteFile(InputStream is, HttpResponse resp) throws IOException {
+    private void writeFileToResponse(InputStream is, HttpResponse resp) throws IOException {
         ServletOutputStream outputStream = resp.getOutputStream();
         byte[] buffer = new byte[1024];
         int len = 0;

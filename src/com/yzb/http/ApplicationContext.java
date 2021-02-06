@@ -16,10 +16,7 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
-import javax.servlet.Servlet;
-import javax.servlet.ServletConfig;
-import javax.servlet.ServletContext;
-import javax.servlet.ServletException;
+import javax.servlet.*;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -65,6 +62,14 @@ public class ApplicationContext extends StandardServletContext {
 
     public String getServletNameToClass(String name){
         return servletNameToClass.get(name);
+    }
+
+    public String getServletURLToClass(String url) {
+        return getServletNameToClass(getServletURLToName(url));
+    }
+
+    public String getServletClassToName(Class<?> clazz){
+        return servletClassToName.get(clazz.getName());
     }
 
     @Override
@@ -153,14 +158,6 @@ public class ApplicationContext extends StandardServletContext {
         super.destroy();
     }
 
-    public String getServletURLToClass(String url) {
-        return getServletNameToClass(getServletURLToName(url));
-    }
-
-    public String getServletClassToName(Class<?> clazz){
-        return servletClassToName.get(clazz.getName());
-    }
-
     @Override
     public Servlet getServlet(String s) throws ServletException {
         try {
@@ -182,18 +179,6 @@ public class ApplicationContext extends StandardServletContext {
         return s;
     }
 
-    public boolean isDefaultContext(){
-        return isDefault;
-    }
-
-    public void setDefaultContext(ApplicationContext defaultContext){
-        this.defaultContext = defaultContext;
-    }
-
-    public ApplicationContext getDefaultContext(){
-        return defaultContext;
-    }
-
     @Override
     public String getInitParameter(String s) {
         return initParameters.get(s);
@@ -208,6 +193,23 @@ public class ApplicationContext extends StandardServletContext {
     public boolean setInitParameter(String key, String value) {
         initParameters.put(key, value);
         return true;
+    }
+
+    @Override
+    public RequestDispatcher getRequestDispatcher(String uri) {
+        return new ApplicationRequestDispatcher(uri, this);
+    }
+
+    public boolean isDefaultContext(){
+        return isDefault;
+    }
+
+    public void setDefaultContext(ApplicationContext defaultContext){
+        this.defaultContext = defaultContext;
+    }
+
+    public ApplicationContext getDefaultContext(){
+        return defaultContext;
     }
 
     public List<String> getWelcomeFileNames(){

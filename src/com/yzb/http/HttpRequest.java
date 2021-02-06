@@ -6,6 +6,7 @@ import com.yzb.common.Connector;
 import com.yzb.exception.ParseHttpRequestException;
 import com.yzb.common.Request;
 
+import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletContext;
 import javax.servlet.ServletInputStream;
 import java.io.*;
@@ -22,17 +23,18 @@ public class HttpRequest extends Request {
 
     private String requestContent;
     private String outlineMessage;
+    private String forwardURI;
 
     private String charsetName = StandardCharsets.UTF_8.name(); //默认编码为utf-8
 
     private final Map<String, String> headers;
-
     private final Map<String, String[]> parameterMap;
 
     private final Socket socket;
     private final Connector connector;
     private ApplicationContext servletContext;
 
+    private boolean forwarding = false;
 
     public HttpRequest(Socket socket, Connector connector) throws ParseHttpRequestException {
         this.socket = socket;
@@ -48,10 +50,6 @@ public class HttpRequest extends Request {
         if(connector instanceof HttpConnector)
             this.servletContext = ((HttpConnector) connector).getServletContext(getRequestURI());
 
-    }
-
-    public Map<String,String> getHeaderMap(){
-        return headers;
     }
 
     @Override
@@ -119,8 +117,25 @@ public class HttpRequest extends Request {
         return StrUtil.subAfter(getWholeRequestURL(), "?", false);
     }
 
+    public void setForwardURI(String uri){
+        this.forwardURI = servletContext.getContextPath() + uri;
+    }
+
+    public void setForwarding(){
+        forwarding = true;
+    }
+
+    public void setForwarded(){
+        forwarding = false;
+    }
+
+    public boolean isForwarding(){
+        return forwarding;
+    }
+
     @Override
     public String getRequestURI() {
+        if(isForwarding()) return forwardURI;
         return  StrUtil.subBefore(getWholeRequestURL(), "?", false);
     }
 
@@ -134,6 +149,11 @@ public class HttpRequest extends Request {
         sb.append(getLocalPort());
         sb.append(getRequestURI());
         return sb;
+    }
+
+    @Override
+    public RequestDispatcher getRequestDispatcher(String s) {
+        return new ApplicationRequestDispatcher(s);
     }
 
     @Override
@@ -238,10 +258,18 @@ public class HttpRequest extends Request {
         return connector.getPort();
     }
 
-
     @Override
     public ServletContext getServletContext() {
         return servletContext;
+    }
+
+    public void setServletContext(ServletContext servletContext){
+        this.servletContext = (ApplicationContext) servletContext;
+    }
+
+
+    public Socket getSocket() {
+        return socket;
     }
 
     private void parseHttpRequestContent() throws ParseHttpRequestException {
