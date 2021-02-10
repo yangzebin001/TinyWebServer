@@ -23,6 +23,7 @@ public class HttpProcessor {
         try{
             LogFactory.get().info("receiving from {}, request: {}", request.getRemoteAddr(), request.getRequestURI());
 
+            SessionManager.newSession(request,response);
             ApplicationContext appContext = (ApplicationContext) request.getServletContext();
             new Dispatcher().dispatch(request.getRequestURI(), appContext, request, response);
 

@@ -1,9 +1,13 @@
 package com.yzb.http;
 
+import cn.hutool.core.date.DateField;
+import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.util.StrUtil;
+import cn.hutool.log.LogFactory;
 import com.yzb.common.Response;
 
 import javax.servlet.ServletOutputStream;
+import javax.servlet.http.Cookie;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -22,14 +26,17 @@ public class HttpResponse extends Response {
     private Socket socket;
 
     private Map<String, String> headers;
+    private List<Cookie> cookieList;
     private int statusCode;
     private boolean commited;
     private boolean callGetOutputStream = false;
     private boolean callGetWriter = false;
     private ByteArrayOutputStream baos;
 
+
     public HttpResponse(Socket socket){
         headers = new HashMap<>();
+        cookieList = new ArrayList<>();
         statusCode = HttpContant.RESPONSE_SC_OK;
         commited = false;
         this.socket = socket;
@@ -47,6 +54,44 @@ public class HttpResponse extends Response {
 
             }
         };
+    }
+
+    @Override
+    public void addCookie(Cookie cookie) {
+        cookieList.add(cookie);
+    }
+
+    public List<Cookie> getCookies(){
+        return this.cookieList;
+    }
+
+
+    private String getCookiesHeader(){
+        if(cookieList == null || cookieList.size() == 0) return "";
+        String pattern = "EEE, d MMM yyyy HH:mm:ss 'GMT'";
+        SimpleDateFormat sdf = new SimpleDateFormat(pattern, Locale.ENGLISH);
+        StringBuilder sb = new StringBuilder();
+        for(Cookie cookie : getCookies()){
+            sb.append("Set-Cookie: ");
+            sb.append(cookie.getName());
+            sb.append("=");
+            sb.append(cookie.getValue());
+            if (-1!=cookie.getMaxAge()){
+                sb.append("; Expires=");
+                Date now = new Date();
+                Date expire = DateUtil.offset(now, DateField.MINUTE,cookie.getMaxAge());
+                sb.append(sdf.format(expire));
+
+            }
+            if(null != cookie.getPath()){
+                sb.append("; Path="+cookie.getPath());
+            }
+
+            sb.append(";");
+            sb.append(HttpContant.LINE_TERMINATOR);
+            LogFactory.get().info(cookie.getName()+"="+cookie.getValue()+";");
+        }
+        return sb.toString();
     }
 
     @Override
@@ -273,6 +318,7 @@ public class HttpResponse extends Response {
             sb.append(entry.getValue());
             sb.append(HttpContant.LINE_TERMINATOR);
         }
+        sb.append(getCookiesHeader());
         sb.append(HttpContant.LINE_TERMINATOR);
         return sb.toString();
     }
