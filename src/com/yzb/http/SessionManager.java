@@ -1,6 +1,7 @@
 package com.yzb.http;
 
 import cn.hutool.core.convert.Convert;
+import cn.hutool.core.io.FileUtil;
 import cn.hutool.core.thread.ThreadUtil;
 import cn.hutool.core.util.RandomUtil;
 import cn.hutool.crypto.SecureUtil;
@@ -15,6 +16,7 @@ import javax.print.Doc;
 import javax.servlet.ServletContext;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpSession;
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -55,6 +57,7 @@ public class SessionManager {
         for(String id : sessionId){
             StandardSession standardSession = sessionMap.get(id);
             long interval = System.currentTimeMillis() - standardSession.getLastAccessedTime();
+            if(standardSession.getMaxInactiveInterval() == -1) continue;
             if(interval > standardSession.getMaxInactiveInterval() * 1000L){
                 outdateJessionIds.add(id);
             }
@@ -67,7 +70,7 @@ public class SessionManager {
 
     private static int getTimeout(){
         int defautlTime = 30;
-        Document document = Jsoup.parse(ServerContext.webXMLPath);
+        Document document = Jsoup.parse(FileUtil.readUtf8String(ServerContext.webXMLPath));
         Elements select = document.select("session-config session-timeout");
         if(select.isEmpty()) return defautlTime;
         return Convert.toInt(select.get(0).text());
