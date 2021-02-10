@@ -115,6 +115,8 @@ public class StandardSession implements HttpSession {
     @Override
     public void invalidate() {
         attritubes.clear();
+        long now = System.currentTimeMillis();
+        setMaxInactiveInterval((int) now-1);
     }
 
     @Override

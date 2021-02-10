@@ -8,6 +8,7 @@ import com.yzb.exception.URLMismatchedExpection;
 
 import javax.servlet.Servlet;
 import javax.servlet.ServletException;
+import javax.servlet.http.HttpSession;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.Socket;
@@ -23,7 +24,8 @@ public class HttpProcessor {
         try{
             LogFactory.get().info("receiving from {}, request: {}", request.getRemoteAddr(), request.getRequestURI());
 
-            SessionManager.newSession(request,response);
+            // process session for every connector
+            prepareSession(request, response);
             ApplicationContext appContext = (ApplicationContext) request.getServletContext();
             new Dispatcher().dispatch(request.getRequestURI(), appContext, request, response);
 
@@ -40,6 +42,12 @@ public class HttpProcessor {
             } catch (IOException e) {
             }
         }
+    }
+
+    private void prepareSession(HttpRequest request, HttpResponse response){
+        String jSessionId = request.getJSessionIdFromCookie();
+        HttpSession session = SessionManager.getSession(jSessionId, request, response);
+        request.setSession(session);
     }
 
     private void handle404(String url, HttpResponse resp, String message) {

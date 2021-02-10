@@ -12,6 +12,18 @@
         <servlet-name>TestServlet3</servlet-name>
         <servlet-class>com.yzb.servlets.TestServlet3</servlet-class>
     </servlet>
+    <servlet>
+        <servlet-name>SessionServlet1</servlet-name>
+        <servlet-class>com.yzb.servlets.SessionServlet1</servlet-class>
+    </servlet>
+    <servlet>
+        <servlet-name>SessionServlet2</servlet-name>
+        <servlet-class>com.yzb.servlets.SessionServlet2</servlet-class>
+    </servlet>
+    <servlet>
+        <servlet-name>SessionServlet3</servlet-name>
+        <servlet-class>com.yzb.servlets.SessionServlet3</servlet-class>
+    </servlet>
 
     <servlet-mapping>
         <servlet-name>TestServlet</servlet-name>
@@ -24,5 +36,17 @@
     <servlet-mapping>
         <servlet-name>TestServlet3</servlet-name>
         <url-pattern>/test3</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>SessionServlet1</servlet-name>
+        <url-pattern>/session1</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>SessionServlet2</servlet-name>
+        <url-pattern>/session2</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>SessionServlet3</servlet-name>
+        <url-pattern>/session3</url-pattern>
     </servlet-mapping>
 </web-app>

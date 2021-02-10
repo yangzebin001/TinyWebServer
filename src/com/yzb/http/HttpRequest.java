@@ -1,6 +1,7 @@
 package com.yzb.http;
 
 import cn.hutool.core.io.IoUtil;
+import cn.hutool.core.util.ArrayUtil;
 import cn.hutool.core.util.StrUtil;
 import com.yzb.common.Connector;
 import com.yzb.exception.ParseHttpRequestException;
@@ -9,6 +10,8 @@ import com.yzb.common.Request;
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletContext;
 import javax.servlet.ServletInputStream;
+import javax.servlet.http.Cookie;
+import javax.servlet.http.HttpSession;
 import java.io.*;
 import java.net.Socket;
 import java.nio.charset.StandardCharsets;
@@ -29,6 +32,8 @@ public class HttpRequest extends Request {
 
     private final Map<String, String> headers;
     private final Map<String, String[]> parameterMap;
+    private Cookie[] cookies;
+    private HttpSession session;
 
     private final Socket socket;
     private final Connector connector;
@@ -38,18 +43,46 @@ public class HttpRequest extends Request {
 
     public HttpRequest(Socket socket, Connector connector) throws ParseHttpRequestException {
         this.socket = socket;
-
         this.connector = connector;
 
         headers = new HashMap<>();
         parameterMap = new HashMap<>();
+        cookies = new Cookie[0];
+
         parseHttpRequestContent();
         parseHttpRequestHeader();
         parseHttpRequestParameter();
+        parseCookies();
 
         if(connector instanceof HttpConnector)
             this.servletContext = ((HttpConnector) connector).getServletContext(getRequestURI());
 
+    }
+
+    @Override
+    public Cookie[] getCookies() {
+        return cookies;
+    }
+
+    public String getJSessionIdFromCookie(){
+        if (null==cookies){
+            return null;
+        }
+        for (Cookie cookie:cookies){
+            if ("JSESSIONID".equals(cookie.getName())){
+                return cookie.getValue();
+            }
+        }
+        return null;
+    }
+
+    @Override
+    public HttpSession getSession() {
+        return session;
+    }
+
+    public void setSession(HttpSession session){
+        this.session = session;
     }
 
     @Override
@@ -339,6 +372,24 @@ public class HttpRequest extends Request {
             System.arraycopy(add, 0, result, origin.length, add.length);
             parameterMap.put(entry.getKey(), result);
         }
+    }
+
+    private void parseCookies(){
+        String cookiesStr = headers.get("Cookie");
+        if(null == cookiesStr) return;
+        List<Cookie> cookieList = new ArrayList<>();
+        String[] pairs = StrUtil.split(cookiesStr,";");
+        for(String pair : pairs){
+            if(StrUtil.isBlank(pair)){
+                continue;
+            }
+            String[] cookieKeyAndValues = StrUtil.split(pair,"=");
+            String key = cookieKeyAndValues[0].trim();
+            String value = cookieKeyAndValues[1].trim();
+            Cookie cookie = new Cookie(key, value);
+            cookieList.add(cookie);
+        }
+        this.cookies = ArrayUtil.toArray(cookieList, Cookie.class);
     }
 
     private String getHttpRequestHeaderString(){
