@@ -63,8 +63,9 @@ public class HttpConnector extends StandardConnector implements Runnable {
         try {
             return new HttpRequest(socket, connector);
         } catch (ParseHttpRequestException e) {
-            e.printStackTrace();
             //bad request
+            LogFactory.get().warn("create request failed! maybe is a bad http request");
+            e.printStackTrace();
         }
         return null;
     }
@@ -82,6 +83,8 @@ public class HttpConnector extends StandardConnector implements Runnable {
                 socket = serverSocket.accept();
             } catch (IOException e) {
                 e.printStackTrace();
+                LogFactory.get().warn("accept failed!");
+                break;
             }
 
             Socket finalSocket = socket;
@@ -101,6 +104,7 @@ public class HttpConnector extends StandardConnector implements Runnable {
 
     // find the ServletContext that matched URI, if all ServletContext mismatched URI, default use "/" context
     public ApplicationContext getServletContext(String URI) {
+        if(URI == null) return null;
         Service service = getService();
         Container container = service.getContainer();
         Container[] servletContexts = null;

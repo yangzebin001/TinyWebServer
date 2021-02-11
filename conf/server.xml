@@ -17,7 +17,7 @@
     <!-- A "Connector" represents an endpoint by which requests are received
          and responses are returned.
     -->
-    <Connector port="8080" protocol="HTTP/1.1"
+    <Connector port="9090" protocol="HTTP/1.1"
                connectionTimeout="20000"
                redirectPort="8443" />
     <!-- A "Connector" using the shared thread pool-->

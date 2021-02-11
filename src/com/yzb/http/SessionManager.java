@@ -38,13 +38,13 @@ public class SessionManager {
         startCheckOutSessionOutDateThread();
     }
 
-    //启动线程，每隔3s调用一次checkoutdatesession方法
+    //启动线程，每隔5s调用一次checkOutDateSession方法
     private static void startCheckOutSessionOutDateThread() {
         checkoutThread = new Thread(){
             public void run(){
                 while(true){
                     checkOutDateSession();
-                    ThreadUtil.sleep(1000*3);
+                    ThreadUtil.sleep(1000*5);
                 }
             }
         };
@@ -58,6 +58,8 @@ public class SessionManager {
             StandardSession standardSession = sessionMap.get(id);
             long interval = System.currentTimeMillis() - standardSession.getLastAccessedTime();
             if(standardSession.getMaxInactiveInterval() == -1) continue;
+            //getMaxInactiveInterval --> s
+            //interval --> ms
             if(interval > standardSession.getMaxInactiveInterval() * 1000L){
                 outdateJessionIds.add(id);
             }
@@ -69,11 +71,11 @@ public class SessionManager {
 
 
     private static int getTimeout(){
-        int defautlTime = 30;
+        int defautlTime = 30*60;
         Document document = Jsoup.parse(FileUtil.readUtf8String(ServerContext.webXMLPath));
         Elements select = document.select("session-config session-timeout");
         if(select.isEmpty()) return defautlTime;
-        return Convert.toInt(select.get(0).text());
+        return Convert.toInt(select.get(0).text())*60;
     }
 
 

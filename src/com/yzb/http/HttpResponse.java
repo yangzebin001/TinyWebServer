@@ -79,9 +79,8 @@ public class HttpResponse extends Response {
             if (-1 != cookie.getMaxAge()){
                 sb.append("; Expires=");
                 Date now = new Date();
-                Date expire = DateUtil.offset(now, DateField.MINUTE,cookie.getMaxAge());
+                Date expire = DateUtil.offset(now, DateField.SECOND,cookie.getMaxAge());
                 sb.append(sdf.format(expire));
-
             }
             if(null != cookie.getPath()){
                 sb.append("; Path="+cookie.getPath());

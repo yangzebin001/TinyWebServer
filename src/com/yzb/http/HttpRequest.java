@@ -54,8 +54,10 @@ public class HttpRequest extends Request {
         parseHttpRequestParameter();
         parseCookies();
 
-        if(connector instanceof HttpConnector)
+        if(connector instanceof HttpConnector){
             this.servletContext = ((HttpConnector) connector).getServletContext(getRequestURI());
+            if(null == this.servletContext) throw new ParseHttpRequestException("get servlet context failed");
+        }
 
     }
 
@@ -169,7 +171,7 @@ public class HttpRequest extends Request {
     @Override
     public String getRequestURI() {
         if(isForwarding()) return forwardURI;
-        return  StrUtil.subBefore(getWholeRequestURL(), "?", false);
+        return StrUtil.subBefore(getWholeRequestURL(), "?", false);
     }
 
     @Override

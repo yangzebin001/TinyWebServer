@@ -24,7 +24,7 @@ public class HttpProcessor {
         try{
             LogFactory.get().info("receiving from {}, request: {}", request.getRemoteAddr(), request.getRequestURI());
 
-            // process session for every connector
+            // prepare session for every connector
             prepareSession(request, response);
             ApplicationContext appContext = (ApplicationContext) request.getServletContext();
             new Dispatcher().dispatch(request.getRequestURI(), appContext, request, response);
