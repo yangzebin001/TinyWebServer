@@ -99,7 +99,7 @@ public class SessionManager {
                 return newSession(request, response);
             } else {
                 currentSession.setLastAccessedTime(System.currentTimeMillis());
-                createCookieBySession(currentSession, request, response);
+//                createCookieBySession(currentSession, request, response);
                 return currentSession;
             }
         }
