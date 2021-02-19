@@ -6,7 +6,7 @@
 
 ![HttpRequestProcess](static/HttpRequestProcess.png)
 
-feature:
+### feature:
 
 - Multi-application deployment
 - Java servlet API support
@@ -20,4 +20,4 @@ feature:
 - MIME type and welcome file support
 - Log management
 
-### default character set is UTF-8
+> default character set is UTF-8
